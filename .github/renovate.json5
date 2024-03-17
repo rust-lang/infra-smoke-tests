@@ -12,4 +12,15 @@
 
   // Disable prefixing commits with the semantic commit type
   semanticCommits: "disabled",
+
+  // Update the Rust version in the GitHub Actions workflow file
+  customManagers: [
+    {
+      customType: "regex",
+      fileMatch: ["^.github/workflows/rust.yml$"],
+      matchStrings: ["prefix-key: [\\w]+-(?<currentValue>.*?)\\n"],
+      depNameTemplate: "rust",
+      datasourceTemplate: "docker",
+    },
+  ],
 }
