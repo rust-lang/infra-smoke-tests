@@ -9,6 +9,7 @@
 
 mod cli;
 mod environment;
+mod test;
 
 #[cfg(test)]
 mod test_utils;
