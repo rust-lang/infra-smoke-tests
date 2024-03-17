@@ -50,6 +50,9 @@ jobs:
     if: needs.detect-changes.outputs.any_changed == 'true'
 
     steps:
+      - name: Install Just
+        run: sudo snap install --edge --classic just
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -62,7 +65,7 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Run Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: just lint
 
   style:
     name: Check style
@@ -72,11 +75,14 @@ jobs:
     if: needs.detect-changes.outputs.any_changed == 'true'
 
     steps:
+      - name: Install Just
+        run: sudo snap install --edge --classic just
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Rustfmt
-        run: cargo fmt --all -- --check
+        run: just format --check
 
   test:
     name: Run tests
@@ -86,6 +92,9 @@ jobs:
     if: needs.detect-changes.outputs.any_changed == 'true'
 
     steps:
+      - name: Install Just
+        run: sudo snap install --edge --classic just
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -98,4 +107,4 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Run tests
-        run: cargo test --all-features --all-targets
+        run: just test
