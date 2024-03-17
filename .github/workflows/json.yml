@@ -25,6 +25,7 @@ jobs:
         uses: tj-actions/changed-files@v43
         with:
           files: |
+            .github/workflows/json.yml
             **/*.json
 
       - name: Print changed files

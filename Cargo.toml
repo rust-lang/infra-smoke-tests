@@ -1,0 +1,15 @@
+[package]
+name = "infra-smoke-test"
+
+version = "0.1.0"
+edition = "2021"
+
+license = "MIT OR Apache-2.0"
+description = "Smoke tests for the Rust project's infrastructure"
+repository = "https://github.com/jdno/infra-smoke-test"
+
+# The smoke tests are an internal tool developed and maintained by the
+# infrastructure team of the Rust project.
+publish = false
+
+[dependencies]

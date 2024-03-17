@@ -25,6 +25,7 @@ jobs:
         uses: tj-actions/changed-files@v43
         with:
           files: |
+            .github/workflows/markdown.yml
             **/*.md
 
       - name: Print changed files
