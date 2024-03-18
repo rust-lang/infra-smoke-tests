@@ -1,7 +1,5 @@
 //! A suite of test groups
 
-use std::future::Future;
-
 use crate::test::TestSuiteResult;
 
 /// A suite of test groups
@@ -11,5 +9,5 @@ use crate::test::TestSuiteResult;
 /// overall result of the test suite.
 pub trait TestSuite {
     /// Run the tests in this suite
-    fn run(&self) -> impl Future<Output = TestSuiteResult>;
+    async fn run(&self) -> TestSuiteResult;
 }

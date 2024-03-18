@@ -1,7 +1,5 @@
 //! A group of tests that belong together
 
-use std::future::Future;
-
 use crate::test::TestGroupResult;
 
 /// A group of tests that belong together
@@ -11,5 +9,5 @@ use crate::test::TestGroupResult;
 /// run together and the results are aggregated to produce a single result for the group.
 pub trait TestGroup {
     /// Run the tests in this group
-    fn run(&self) -> impl Future<Output = TestGroupResult>;
+    async fn run(&self) -> TestGroupResult;
 }
