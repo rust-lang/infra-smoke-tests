@@ -2,6 +2,7 @@
 
 pub use self::test_group_result::TestGroupResult;
 pub use self::test_result::TestResult;
+pub use self::test_suite::TestSuite;
 pub use self::test_suite_result::TestSuiteResult;
 
 mod test_group;
