@@ -1,7 +1,5 @@
 //! Types that represent tests and their results
 
-use std::future::Future;
-
 pub use self::test_group_result::TestGroupResult;
 pub use self::test_result::TestResult;
 pub use self::test_suite_result::TestSuiteResult;
@@ -19,5 +17,5 @@ mod test_suite_result;
 /// have side effects.
 pub trait Test {
     /// Run the test
-    fn run(&self) -> impl Future<Output = TestResult>;
+    async fn run(&self) -> TestResult;
 }
