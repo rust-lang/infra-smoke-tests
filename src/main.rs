@@ -11,6 +11,9 @@ mod cli;
 mod environment;
 mod test;
 
+// Test suites
+mod crates;
+
 #[cfg(test)]
 mod test_utils;
 
