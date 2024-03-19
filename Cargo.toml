@@ -16,9 +16,12 @@ publish = false
 clap = { version = "4.5.3", features = ["derive"] }
 getset = "0.1.2"
 indent = "0.1.1"
+reqwest = { version = "0.11.26", default-features = false, features = ["rustls-tls"] }
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
 typed-builder = "0.18.1"
+url = "2.5.0"
 
 [dev-dependencies]
 indoc = "2.0.4"
+mockito = "1.4.0"
 pretty_assertions = "1.4.0"
