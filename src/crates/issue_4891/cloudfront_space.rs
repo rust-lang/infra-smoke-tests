@@ -1,10 +1,12 @@
 //! Test CloudFront with a URL including a space character
 
 use async_trait::async_trait;
+use reqwest::StatusCode;
 
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
+use super::request_url_and_expect_status;
 
 /// The name of the test
 const NAME: &str = "CloudFront with space";
@@ -37,29 +39,7 @@ impl<'a> Test for CloudfrontSpace<'a> {
         )
         .replace('+', " ");
 
-        let response = match reqwest::get(url).await {
-            Ok(response) => response,
-            Err(error) => {
-                return TestResult::builder()
-                    .name(NAME)
-                    .success(false)
-                    .message(Some(error.to_string()))
-                    .build()
-            }
-        };
-
-        if response.status() == 403 {
-            TestResult::builder().name(NAME).success(true).build()
-        } else {
-            TestResult::builder()
-                .name(NAME)
-                .success(false)
-                .message(Some(format!(
-                    "Expected HTTP 403 Forbidden, got HTTP {}",
-                    response.status()
-                )))
-                .build()
-        }
+        request_url_and_expect_status(NAME, &url, StatusCode::FORBIDDEN).await
     }
 }
 

@@ -3,9 +3,10 @@
 use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
+use reqwest::StatusCode;
 
 use crate::environment::Environment;
-use crate::test::{Test, TestGroup, TestGroupResult};
+use crate::test::{Test, TestGroup, TestGroupResult, TestResult};
 
 use self::cloudfront_encoded::CloudfrontEncoded;
 use self::cloudfront_space::CloudfrontSpace;
@@ -64,6 +65,42 @@ impl TestGroup for Issue4891 {
         TestGroupResult::builder()
             .name(NAME)
             .results(results)
+            .build()
+    }
+}
+
+/// Test the given URL and expect the given status code
+///
+/// This function sends a GET request to the given URL and expects the response to have the given
+/// status code. If the request fails, the test will fail with the error message. If the response
+/// status code does not match the expected status code, the test will return an unsuccessful
+/// `TestResult`.
+async fn request_url_and_expect_status(
+    name: &'static str,
+    url: &str,
+    expected_status: StatusCode,
+) -> TestResult {
+    let response = match reqwest::get(url).await {
+        Ok(response) => response,
+        Err(error) => {
+            return TestResult::builder()
+                .name(name)
+                .success(false)
+                .message(Some(error.to_string()))
+                .build()
+        }
+    };
+
+    if response.status() == expected_status {
+        TestResult::builder().name(name).success(true).build()
+    } else {
+        TestResult::builder()
+            .name(name)
+            .success(false)
+            .message(Some(format!(
+                "Expected HTTP {expected_status}, got HTTP {}",
+                response.status()
+            )))
             .build()
     }
 }

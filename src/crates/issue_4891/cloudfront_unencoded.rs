@@ -1,10 +1,12 @@
 //! Test CloudFront with an un-encoded URL
 
 use async_trait::async_trait;
+use reqwest::StatusCode;
 
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
+use super::request_url_and_expect_status;
 
 /// The name of the test
 const NAME: &str = "CloudFront unencoded";
@@ -36,29 +38,7 @@ impl<'a> Test for CloudfrontUnencoded<'a> {
             self.config.version()
         );
 
-        let response = match reqwest::get(url).await {
-            Ok(response) => response,
-            Err(error) => {
-                return TestResult::builder()
-                    .name(NAME)
-                    .success(false)
-                    .message(Some(error.to_string()))
-                    .build()
-            }
-        };
-
-        if response.status().is_success() {
-            TestResult::builder().name(NAME).success(true).build()
-        } else {
-            TestResult::builder()
-                .name(NAME)
-                .success(false)
-                .message(Some(format!(
-                    "Expected HTTP 200 OK, got HTTP {}",
-                    response.status()
-                )))
-                .build()
-        }
+        request_url_and_expect_status(NAME, &url, StatusCode::OK).await
     }
 }
 
