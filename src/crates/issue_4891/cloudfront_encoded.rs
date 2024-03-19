@@ -1,4 +1,4 @@
-//! Test CloudFront with an un-encoded URL
+//! Test CloudFront with an encoded URL
 
 use async_trait::async_trait;
 
@@ -7,18 +7,18 @@ use crate::test::{Test, TestResult};
 use super::config::Config;
 
 /// The name of the test
-const NAME: &str = "CloudFront unencoded";
+const NAME: &str = "CloudFront encoded";
 
-/// Test CloudFront with an un-encoded URL
+/// Test CloudFront with an encoded URL
 ///
-/// This test request a URL with an un-encoded `+` character from Cloudfront. The test expects the
-/// CDN to return an HTTP 200 OK response.
-pub struct CloudfrontUnencoded<'a> {
+/// This test request a URL with an encoded `+` character from Cloudfront. The test expects the CDN
+/// to return an HTTP 200 OK response.
+pub struct CloudfrontEncoded<'a> {
     /// Configuration for this test
     config: &'a Config,
 }
 
-impl<'a> CloudfrontUnencoded<'a> {
+impl<'a> CloudfrontEncoded<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
@@ -26,7 +26,7 @@ impl<'a> CloudfrontUnencoded<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for CloudfrontUnencoded<'a> {
+impl<'a> Test for CloudfrontEncoded<'a> {
     async fn run(&self) -> TestResult {
         let url = format!(
             "{}/crates/{}/{}-{}.crate",
@@ -34,7 +34,8 @@ impl<'a> Test for CloudfrontUnencoded<'a> {
             self.config.krate(),
             self.config.krate(),
             self.config.version()
-        );
+        )
+        .replace('+', "%2B");
 
         let response = match reqwest::get(url).await {
             Ok(response) => response,
@@ -90,15 +91,17 @@ mod tests {
     async fn succeeds_with_http_200_response() {
         let (mut server, config) = setup().await;
 
+        let encoded_version = VERSION.replace('+', "%2B");
+
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
             )
             .with_status(200)
             .create();
 
-        let result = CloudfrontUnencoded::new(&config).run().await;
+        let result = CloudfrontEncoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -110,15 +113,17 @@ mod tests {
     async fn fails_with_other_http_responses() {
         let (mut server, config) = setup().await;
 
+        let encoded_version = VERSION.replace('+', "%2B");
+
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
             )
             .with_status(403)
             .create();
 
-        let result = CloudfrontUnencoded::new(&config).run().await;
+        let result = CloudfrontEncoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -128,16 +133,16 @@ mod tests {
 
     #[test]
     fn trait_send() {
-        assert_send::<CloudfrontUnencoded>();
+        assert_send::<CloudfrontEncoded>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<CloudfrontUnencoded>();
+        assert_sync::<CloudfrontEncoded>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<CloudfrontUnencoded>();
+        assert_unpin::<CloudfrontEncoded>();
     }
 }
