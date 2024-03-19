@@ -13,7 +13,7 @@ use crate::environment::Environment;
 /// tests confirm that the infrastructure is working as expected and that no regressions have been
 /// introduced.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Parser)]
-struct Cli {
+pub struct Cli {
     /// The environment to run the smoke tests against
     #[arg(long, value_enum, default_value_t)]
     env: Environment,

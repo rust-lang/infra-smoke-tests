@@ -31,7 +31,7 @@ impl TestSuiteResult {
     ///
     /// A test suite is successful if all the tests in its groups are successful. This method
     /// iterates over the individual test results and checks if all of them are successful.
-    fn success(&self) -> bool {
+    pub fn success(&self) -> bool {
         self.results.iter().all(|result| result.success())
     }
 }

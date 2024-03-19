@@ -7,6 +7,12 @@
 // Make it easier for future generations to maintain this code base by documenting it.
 #![warn(clippy::missing_docs_in_private_items)]
 
+use clap::Parser;
+
+use crate::cli::Cli;
+use crate::crates::Crates;
+use crate::test::{TestSuite, TestSuiteResult};
+
 mod cli;
 mod environment;
 mod test;
@@ -17,6 +23,22 @@ mod crates;
 #[cfg(test)]
 mod test_utils;
 
-fn main() {
-    println!("Hello, world!");
+#[tokio::main]
+async fn main() {
+    let _cli = Cli::parse();
+
+    let tests = vec![Crates::default()];
+
+    let mut results: Vec<TestSuiteResult> = Vec::with_capacity(tests.len());
+    for test in &tests {
+        results.push(test.run().await);
+    }
+
+    for result in &results {
+        println!("{:?}", result);
+    }
+
+    if results.iter().any(|result| !result.success()) {
+        std::process::exit(1);
+    }
 }
