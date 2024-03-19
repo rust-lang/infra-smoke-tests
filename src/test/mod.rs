@@ -1,5 +1,6 @@
 //! Types that represent tests and their results
 
+pub use self::test_group::TestGroup;
 pub use self::test_group_result::TestGroupResult;
 pub use self::test_result::TestResult;
 pub use self::test_suite::TestSuite;
