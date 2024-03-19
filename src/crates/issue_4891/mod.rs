@@ -8,10 +8,12 @@ use crate::environment::Environment;
 use crate::test::{Test, TestGroup, TestGroupResult};
 
 use self::cloudfront_encoded::CloudfrontEncoded;
+use self::cloudfront_space::CloudfrontSpace;
 use self::cloudfront_unencoded::CloudfrontUnencoded;
 use self::config::Config;
 
 mod cloudfront_encoded;
+mod cloudfront_space;
 mod cloudfront_unencoded;
 mod config;
 
@@ -49,8 +51,9 @@ impl Display for Issue4891 {
 impl TestGroup for Issue4891 {
     async fn run(&self) -> TestGroupResult {
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudfrontUnencoded::new(&self.config)),
             Box::new(CloudfrontEncoded::new(&self.config)),
+            Box::new(CloudfrontUnencoded::new(&self.config)),
+            Box::new(CloudfrontSpace::new(&self.config)),
         ];
 
         let mut results = Vec::new();
