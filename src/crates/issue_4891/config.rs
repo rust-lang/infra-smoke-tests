@@ -1,6 +1,8 @@
 //! Configuration to test rust-lang/crates.io#4891
 
 use getset::Getters;
+#[cfg(test)]
+use typed_builder::TypedBuilder;
 
 use crate::environment::Environment;
 
@@ -9,23 +11,24 @@ use crate::environment::Environment;
 /// The smoke tests try to access a crate with a `+` character in its version on all the different
 /// Content Delivery Networks. The configuration provides a crate in the different environments that
 /// can be used for the tests as well as the URLs for the CDNs.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, Getters)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default, Getters)]
+#[cfg_attr(test, derive(TypedBuilder))]
 pub struct Config {
     /// The name of the crate
-    #[get(get = "pub")]
-    krate: &'static str,
+    #[getset(get = "pub")]
+    krate: String,
 
     /// The version with the `+` character
-    #[get(get = "pub")]
-    version: &'static str,
+    #[getset(get = "pub")]
+    version: String,
 
     /// The URL for the CloudFront CDN
-    #[get(get = "pub")]
-    cloudfront_url: &'static str,
+    #[getset(get = "pub")]
+    cloudfront_url: String,
 
     /// The URL for the Fastly CDN
-    #[get(get = "pub")]
-    fastly_url: &'static str,
+    #[getset(get = "pub")]
+    fastly_url: String,
 }
 
 impl Config {
@@ -33,16 +36,16 @@ impl Config {
     pub fn for_env(env: Environment) -> Self {
         match env {
             Environment::Staging => Self {
-                krate: "rust-cratesio-4891",
-                version: "0.1.0+1",
-                cloudfront_url: "https://cloudfront-static.staging.crates.io",
-                fastly_url: "https://fastly-static.staging.crates.io",
+                krate: "rust-cratesio-4891".into(),
+                version: "0.1.0+1".into(),
+                cloudfront_url: "https://cloudfront-static.staging.crates.io".into(),
+                fastly_url: "https://fastly-static.staging.crates.io".into(),
             },
             Environment::Production => Self {
-                krate: "libgit2-sys",
-                version: "0.12.25+1.3.0",
-                cloudfront_url: "https://cloudfront-static.crates.io",
-                fastly_url: "https://fastly-static.crates.io",
+                krate: "libgit2-sys".into(),
+                version: "0.12.25+1.3.0".into(),
+                cloudfront_url: "https://cloudfront-static.crates.io".into(),
+                fastly_url: "https://fastly-static.crates.io".into(),
             },
         }
     }

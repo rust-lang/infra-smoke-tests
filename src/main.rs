@@ -35,7 +35,7 @@ async fn main() {
     }
 
     for result in &results {
-        println!("{:?}", result);
+        println!("{result}");
     }
 
     if results.iter().any(|result| !result.success()) {
