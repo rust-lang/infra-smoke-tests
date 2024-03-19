@@ -45,38 +45,22 @@ impl<'a> Test for CloudfrontEncoded<'a> {
 
 #[cfg(test)]
 mod tests {
-    use mockito::ServerGuard;
-
+    use crate::crates::issue_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
 
     const KRATE: &str = "rust-cratesio-4891";
-    const VERSION: &str = "0.1.0+1";
-
-    async fn setup() -> (ServerGuard, Config) {
-        let server = mockito::Server::new_async().await;
-
-        let config = Config::builder()
-            .krate(KRATE.into())
-            .version(VERSION.into())
-            .cloudfront_url(server.url())
-            .fastly_url(String::new())
-            .build();
-
-        (server, config)
-    }
+    const VERSION: &str = "0.1.0%2B1";
 
     #[tokio::test]
     async fn succeeds_with_http_200_response() {
-        let (mut server, config) = setup().await;
-
-        let encoded_version = VERSION.replace('+', "%2B");
+        let (mut server, config) = setup(KRATE, VERSION).await;
 
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
             )
             .with_status(200)
             .create();
@@ -91,14 +75,12 @@ mod tests {
 
     #[tokio::test]
     async fn fails_with_other_http_responses() {
-        let (mut server, config) = setup().await;
-
-        let encoded_version = VERSION.replace('+', "%2B");
+        let (mut server, config) = setup(KRATE, VERSION).await;
 
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
             )
             .with_status(403)
             .create();

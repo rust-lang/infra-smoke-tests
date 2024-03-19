@@ -45,33 +45,19 @@ impl<'a> Test for CloudfrontSpace<'a> {
 
 #[cfg(test)]
 mod tests {
-    use mockito::ServerGuard;
-
+    use crate::crates::issue_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
 
     const KRATE: &str = "rust-cratesio-4891";
-    const VERSION: &str = "0.1.0+1";
-
-    async fn setup() -> (ServerGuard, Config) {
-        let server = mockito::Server::new_async().await;
-
-        let config = Config::builder()
-            .krate(KRATE.into())
-            .version(VERSION.into())
-            .cloudfront_url(server.url())
-            .fastly_url(String::new())
-            .build();
-
-        (server, config)
-    }
+    const VERSION: &str = "0.1.0 1";
 
     #[tokio::test]
     async fn succeeds_with_http_403_response() {
-        let (mut server, config) = setup().await;
+        let (mut server, config) = setup(KRATE, VERSION).await;
 
-        let encoded_version = VERSION.replace('+', "%20");
+        let encoded_version = VERSION.replace(' ', "%20");
 
         let mock = server
             .mock(
@@ -91,9 +77,9 @@ mod tests {
 
     #[tokio::test]
     async fn fails_with_other_http_responses() {
-        let (mut server, config) = setup().await;
+        let (mut server, config) = setup(KRATE, VERSION).await;
 
-        let encoded_version = VERSION.replace('+', "%20");
+        let encoded_version = VERSION.replace(' ', "%20");
 
         let mock = server
             .mock(
