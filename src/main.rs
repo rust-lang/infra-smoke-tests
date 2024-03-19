@@ -25,9 +25,9 @@ mod test_utils;
 
 #[tokio::main]
 async fn main() {
-    let _cli = Cli::parse();
+    let cli = Cli::parse();
 
-    let tests = vec![Crates::default()];
+    let tests = vec![Crates::new(cli.env())];
 
     let mut results: Vec<TestSuiteResult> = Vec::with_capacity(tests.len());
     for test in &tests {
