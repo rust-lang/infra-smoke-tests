@@ -4,12 +4,14 @@ use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
 
-use crate::crates::issue_4891::cloudfront_unencoded::CloudfrontUnencoded;
 use crate::environment::Environment;
 use crate::test::{Test, TestGroup, TestGroupResult};
 
+use self::cloudfront_encoded::CloudfrontEncoded;
+use self::cloudfront_unencoded::CloudfrontUnencoded;
 use self::config::Config;
 
+mod cloudfront_encoded;
 mod cloudfront_unencoded;
 mod config;
 
@@ -46,7 +48,10 @@ impl Display for Issue4891 {
 #[async_trait]
 impl TestGroup for Issue4891 {
     async fn run(&self) -> TestGroupResult {
-        let tests = vec![CloudfrontUnencoded::new(&self.config)];
+        let tests: Vec<Box<dyn Test>> = vec![
+            Box::new(CloudfrontUnencoded::new(&self.config)),
+            Box::new(CloudfrontEncoded::new(&self.config)),
+        ];
 
         let mut results = Vec::new();
         for test in tests {

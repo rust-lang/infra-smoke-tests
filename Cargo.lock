@@ -483,7 +483,6 @@ dependencies = [
  "reqwest",
  "tokio",
  "typed-builder",
- "url",
 ]
 
 [[package]]

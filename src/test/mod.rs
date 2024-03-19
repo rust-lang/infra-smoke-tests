@@ -20,7 +20,7 @@ mod test_suite_result;
 /// that indicates whether the check passed or failed. Tests should be idempotent and should not
 /// have side effects.
 #[async_trait]
-pub trait Test {
+pub trait Test: Send + Sync {
     /// Run the test
     async fn run(&self) -> TestResult;
 }
