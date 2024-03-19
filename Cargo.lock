@@ -85,6 +85,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.78"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "461abc97219de0eaaf81fe3ef974a540158f3d079c2ab200f891f1a2ef201e85"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.53",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -462,6 +473,7 @@ checksum = "1e186cfbae8084e513daff4240b4797e342f988cecda4fb6c939150f96315fd8"
 name = "infra-smoke-test"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "clap",
  "getset",
  "indent",
