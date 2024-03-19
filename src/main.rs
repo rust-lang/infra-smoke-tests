@@ -27,7 +27,7 @@ mod test_utils;
 async fn main() {
     let cli = Cli::parse();
 
-    let tests = vec![Crates::new(cli.env())];
+    let tests: Vec<Box<dyn TestSuite>> = vec![Box::new(Crates::new(cli.env()))];
 
     let mut results: Vec<TestSuiteResult> = Vec::with_capacity(tests.len());
     for test in &tests {

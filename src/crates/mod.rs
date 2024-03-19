@@ -2,6 +2,8 @@
 
 use std::fmt::{Display, Formatter};
 
+use async_trait::async_trait;
+
 use crate::crates::issue_4891::Issue4891;
 use crate::environment::Environment;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
@@ -32,6 +34,7 @@ impl Display for Crates {
     }
 }
 
+#[async_trait]
 impl TestSuite for Crates {
     async fn run(&self) -> TestSuiteResult {
         let groups = [Issue4891::new(self.env)];

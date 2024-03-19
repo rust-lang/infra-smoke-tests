@@ -13,6 +13,7 @@ repository = "https://github.com/jdno/infra-smoke-test"
 publish = false
 
 [dependencies]
+async-trait = "0.1.78"
 clap = { version = "4.5.3", features = ["derive"] }
 getset = "0.1.2"
 indent = "0.1.1"

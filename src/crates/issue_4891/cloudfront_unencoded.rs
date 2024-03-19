@@ -1,5 +1,6 @@
 //! Test CloudFront with an un-encoded URL
 
+use async_trait::async_trait;
 use url::Url;
 
 use crate::test::{Test, TestResult};
@@ -25,6 +26,7 @@ impl<'a> CloudfrontUnencoded<'a> {
     }
 }
 
+#[async_trait]
 impl<'a> Test for CloudfrontUnencoded<'a> {
     async fn run(&self) -> TestResult {
         let url = Url::parse(&format!(
