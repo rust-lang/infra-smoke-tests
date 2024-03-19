@@ -107,11 +107,25 @@ async fn request_url_and_expect_status(
 
 #[cfg(test)]
 mod tests {
+    use mockito::ServerGuard;
     use pretty_assertions::assert_eq;
 
     use crate::test_utils::*;
 
     use super::*;
+
+    pub async fn setup(krate: &'static str, version: &'static str) -> (ServerGuard, Config) {
+        let server = mockito::Server::new_async().await;
+
+        let config = Config::builder()
+            .krate(krate.into())
+            .version(version.into())
+            .cloudfront_url(server.url())
+            .fastly_url(String::new())
+            .build();
+
+        (server, config)
+    }
 
     #[test]
     fn trait_display() {
