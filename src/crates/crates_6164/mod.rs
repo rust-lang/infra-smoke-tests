@@ -21,7 +21,7 @@ mod config;
 mod fastly;
 
 /// The name of the test group
-const NAME: &str = "rust-lang/crates.io#6164";
+const NAME: &str = "rust-lang/crates.io#6164 - CORS headers";
 
 /// Missing CORS header for downloads
 ///
@@ -142,7 +142,10 @@ mod tests {
     fn trait_display() {
         let crates_6164 = Crates6164::new(Environment::Staging);
 
-        assert_eq!("rust-lang/crates.io#6164", crates_6164.to_string());
+        assert_eq!(
+            "rust-lang/crates.io#6164 - CORS headers",
+            crates_6164.to_string()
+        );
     }
 
     #[test]

@@ -28,7 +28,7 @@ mod fastly_space;
 mod fastly_unencoded;
 
 /// The name of the test group
-const NAME: &str = "rust-lang/crates.io#4891";
+const NAME: &str = "rust-lang/crates.io#4891 - Encoded + character";
 
 /// Encoded URLs with a + sign fail
 ///
@@ -143,7 +143,10 @@ mod tests {
     fn trait_display() {
         let crates_4891 = Crates4891::new(Environment::Staging);
 
-        assert_eq!("rust-lang/crates.io#4891", crates_4891.to_string());
+        assert_eq!(
+            "rust-lang/crates.io#4891 - Encoded + character",
+            crates_4891.to_string()
+        );
     }
 
     #[test]
