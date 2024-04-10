@@ -4,11 +4,14 @@ use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
 
-use crate::crates::crates_4891::Crates4891;
 use crate::environment::Environment;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
+use self::crates_4891::Crates4891;
+use self::crates_6164::Crates6164;
+
 mod crates_4891;
+mod crates_6164;
 mod utils;
 
 /// Smoke tests for crates.io
@@ -38,7 +41,10 @@ impl Display for Crates {
 #[async_trait]
 impl TestSuite for Crates {
     async fn run(&self) -> TestSuiteResult {
-        let groups = [Crates4891::new(self.env)];
+        let groups: Vec<Box<dyn TestGroup>> = vec![
+            Box::new(Crates4891::new(self.env)),
+            Box::new(Crates6164::new(self.env)),
+        ];
 
         let mut results = Vec::with_capacity(groups.len());
         for group in &groups {
