@@ -3,6 +3,7 @@
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
+use crate::crates::utils::crate_url;
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
@@ -30,12 +31,10 @@ impl<'a> FastlyUnencoded<'a> {
 #[async_trait]
 impl<'a> Test for FastlyUnencoded<'a> {
     async fn run(&self) -> TestResult {
-        let url = format!(
-            "{}/crates/{}/{}-{}.crate",
+        let url = crate_url(
             self.config.fastly_url(),
             self.config.krate(),
-            self.config.krate(),
-            self.config.version()
+            self.config.version(),
         );
 
         request_url_and_expect_status(NAME, &url, StatusCode::OK).await

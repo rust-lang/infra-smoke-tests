@@ -9,6 +9,7 @@ use crate::environment::Environment;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
 mod crates_4891;
+mod utils;
 
 /// Smoke tests for crates.io
 ///
