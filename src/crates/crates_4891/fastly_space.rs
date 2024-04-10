@@ -1,4 +1,4 @@
-//! Test Fastly with an encoded URL
+//! Test Fastly with a URL including a space character
 
 use async_trait::async_trait;
 use reqwest::StatusCode;
@@ -9,18 +9,18 @@ use super::config::Config;
 use super::request_url_and_expect_status;
 
 /// The name of the test
-const NAME: &str = "Fastly encoded";
+const NAME: &str = "Fastly with space";
 
-/// Test Fastly with an encoded URL
+/// Test Fastly with a URL including a space character
 ///
-/// This test request a URL with an encoded `+` character from Fastly. The test expects the CDN to
-/// return an HTTP 200 OK response.
-pub struct FastlyEncoded<'a> {
+/// This test request a URL with a space character from Fastly. The test expects the CDN to return
+/// an HTTP 403 Forbidden response.
+pub struct FastlySpace<'a> {
     /// Configuration for this test
     config: &'a Config,
 }
 
-impl<'a> FastlyEncoded<'a> {
+impl<'a> FastlySpace<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
@@ -28,7 +28,7 @@ impl<'a> FastlyEncoded<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for FastlyEncoded<'a> {
+impl<'a> Test for FastlySpace<'a> {
     async fn run(&self) -> TestResult {
         let url = format!(
             "{}/crates/{}/{}-{}.crate",
@@ -37,35 +37,37 @@ impl<'a> Test for FastlyEncoded<'a> {
             self.config.krate(),
             self.config.version()
         )
-        .replace('+', "%2B");
+        .replace('+', " ");
 
-        request_url_and_expect_status(NAME, &url, StatusCode::OK).await
+        request_url_and_expect_status(NAME, &url, StatusCode::FORBIDDEN).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::crates::issue_4891::tests::setup;
+    use crate::crates::crates_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
 
     const KRATE: &str = "rust-cratesio-4891";
-    const VERSION: &str = "0.1.0%2B1";
+    const VERSION: &str = "0.1.0 1";
 
     #[tokio::test]
-    async fn succeeds_with_http_200_response() {
+    async fn succeeds_with_http_403_response() {
         let (mut server, config) = setup(KRATE, VERSION).await;
+
+        let encoded_version = VERSION.replace(' ', "%20");
 
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
             )
-            .with_status(200)
+            .with_status(403)
             .create();
 
-        let result = FastlyEncoded::new(&config).run().await;
+        let result = FastlySpace::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -77,15 +79,17 @@ mod tests {
     async fn fails_with_other_http_responses() {
         let (mut server, config) = setup(KRATE, VERSION).await;
 
+        let encoded_version = VERSION.replace(' ', "%20");
+
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
             )
-            .with_status(403)
+            .with_status(200)
             .create();
 
-        let result = FastlyEncoded::new(&config).run().await;
+        let result = FastlySpace::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -95,16 +99,16 @@ mod tests {
 
     #[test]
     fn trait_send() {
-        assert_send::<FastlyEncoded>();
+        assert_send::<FastlySpace>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<FastlyEncoded>();
+        assert_sync::<FastlySpace>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<FastlyEncoded>();
+        assert_unpin::<FastlySpace>();
     }
 }

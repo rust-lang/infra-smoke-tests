@@ -1,4 +1,4 @@
-//! Test CloudFront with an encoded URL
+//! Test Fastly with an encoded URL
 
 use async_trait::async_trait;
 use reqwest::StatusCode;
@@ -9,18 +9,18 @@ use super::config::Config;
 use super::request_url_and_expect_status;
 
 /// The name of the test
-const NAME: &str = "CloudFront encoded";
+const NAME: &str = "Fastly encoded";
 
-/// Test CloudFront with an encoded URL
+/// Test Fastly with an encoded URL
 ///
-/// This test request a URL with an encoded `+` character from Cloudfront. The test expects the CDN
-/// to return an HTTP 200 OK response.
-pub struct CloudfrontEncoded<'a> {
+/// This test request a URL with an encoded `+` character from Fastly. The test expects the CDN to
+/// return an HTTP 200 OK response.
+pub struct FastlyEncoded<'a> {
     /// Configuration for this test
     config: &'a Config,
 }
 
-impl<'a> CloudfrontEncoded<'a> {
+impl<'a> FastlyEncoded<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
@@ -28,11 +28,11 @@ impl<'a> CloudfrontEncoded<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for CloudfrontEncoded<'a> {
+impl<'a> Test for FastlyEncoded<'a> {
     async fn run(&self) -> TestResult {
         let url = format!(
             "{}/crates/{}/{}-{}.crate",
-            self.config.cloudfront_url(),
+            self.config.fastly_url(),
             self.config.krate(),
             self.config.krate(),
             self.config.version()
@@ -45,7 +45,7 @@ impl<'a> Test for CloudfrontEncoded<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::crates::issue_4891::tests::setup;
+    use crate::crates::crates_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
@@ -65,7 +65,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = CloudfrontEncoded::new(&config).run().await;
+        let result = FastlyEncoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -85,7 +85,7 @@ mod tests {
             .with_status(403)
             .create();
 
-        let result = CloudfrontEncoded::new(&config).run().await;
+        let result = FastlyEncoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -95,16 +95,16 @@ mod tests {
 
     #[test]
     fn trait_send() {
-        assert_send::<CloudfrontEncoded>();
+        assert_send::<FastlyEncoded>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<CloudfrontEncoded>();
+        assert_sync::<FastlyEncoded>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<CloudfrontEncoded>();
+        assert_unpin::<FastlyEncoded>();
     }
 }

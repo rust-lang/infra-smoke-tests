@@ -4,11 +4,11 @@ use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
 
-use crate::crates::issue_4891::Issue4891;
+use crate::crates::crates_4891::Issue4891;
 use crate::environment::Environment;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
-mod issue_4891;
+mod crates_4891;
 
 /// Smoke tests for crates.io
 ///

@@ -1,4 +1,4 @@
-//! Test CloudFront with a URL including a space character
+//! Test Fastly with an un-encoded URL
 
 use async_trait::async_trait;
 use reqwest::StatusCode;
@@ -9,18 +9,18 @@ use super::config::Config;
 use super::request_url_and_expect_status;
 
 /// The name of the test
-const NAME: &str = "CloudFront with space";
+const NAME: &str = "Fastly unencoded";
 
-/// Test CloudFront with a URL including a space character
+/// Test Fastly with an un-encoded URL
 ///
-/// This test request a URL with a space character from Cloudfront. The test expects the CDN to
-/// return an HTTP 403 Forbidden response.
-pub struct CloudfrontSpace<'a> {
+/// This test request a URL with an un-encoded `+` character from Fastly. The test expects the CDN
+/// to return an HTTP 200 OK response.
+pub struct FastlyUnencoded<'a> {
     /// Configuration for this test
     config: &'a Config,
 }
 
-impl<'a> CloudfrontSpace<'a> {
+impl<'a> FastlyUnencoded<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
@@ -28,46 +28,43 @@ impl<'a> CloudfrontSpace<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for CloudfrontSpace<'a> {
+impl<'a> Test for FastlyUnencoded<'a> {
     async fn run(&self) -> TestResult {
         let url = format!(
             "{}/crates/{}/{}-{}.crate",
-            self.config.cloudfront_url(),
+            self.config.fastly_url(),
             self.config.krate(),
             self.config.krate(),
             self.config.version()
-        )
-        .replace('+', " ");
+        );
 
-        request_url_and_expect_status(NAME, &url, StatusCode::FORBIDDEN).await
+        request_url_and_expect_status(NAME, &url, StatusCode::OK).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::crates::issue_4891::tests::setup;
+    use crate::crates::crates_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
 
     const KRATE: &str = "rust-cratesio-4891";
-    const VERSION: &str = "0.1.0 1";
+    const VERSION: &str = "0.1.0+1";
 
     #[tokio::test]
-    async fn succeeds_with_http_403_response() {
+    async fn succeeds_with_http_200_response() {
         let (mut server, config) = setup(KRATE, VERSION).await;
-
-        let encoded_version = VERSION.replace(' ', "%20");
 
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
             )
-            .with_status(403)
+            .with_status(200)
             .create();
 
-        let result = CloudfrontSpace::new(&config).run().await;
+        let result = FastlyUnencoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -79,17 +76,15 @@ mod tests {
     async fn fails_with_other_http_responses() {
         let (mut server, config) = setup(KRATE, VERSION).await;
 
-        let encoded_version = VERSION.replace(' ', "%20");
-
         let mock = server
             .mock(
                 "GET",
-                format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
+                format!("/crates/{KRATE}/{KRATE}-{VERSION}.crate").as_str(),
             )
-            .with_status(200)
+            .with_status(403)
             .create();
 
-        let result = CloudfrontSpace::new(&config).run().await;
+        let result = FastlyUnencoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -99,16 +94,16 @@ mod tests {
 
     #[test]
     fn trait_send() {
-        assert_send::<CloudfrontSpace>();
+        assert_send::<FastlyUnencoded>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<CloudfrontSpace>();
+        assert_sync::<FastlyUnencoded>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<CloudfrontSpace>();
+        assert_unpin::<FastlyUnencoded>();
     }
 }

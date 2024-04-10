@@ -1,4 +1,7 @@
 //! Encoded URLs with a + sign fail
+//!
+//! This module implements smoke tests for <https://github.com/rust-lang/crates.io/issues/4891>,
+//! which reported an issue with the `+` character in URLs.
 
 use std::fmt::{Display, Formatter};
 
