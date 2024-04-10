@@ -37,12 +37,12 @@ const NAME: &str = "rust-lang/crates.io#4891";
 /// meaning in S3, which was not considered when uploading crates in the past. The smoke tests
 /// ensure that the Content Delivery Networks correctly rewrite the URL to avoid this issue.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-pub struct Issue4891 {
+pub struct Crates4891 {
     /// Configuration for the test group
     config: Config,
 }
 
-impl Issue4891 {
+impl Crates4891 {
     /// Create a new instance of the test group
     pub fn new(env: Environment) -> Self {
         Self {
@@ -51,14 +51,14 @@ impl Issue4891 {
     }
 }
 
-impl Display for Issue4891 {
+impl Display for Crates4891 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", NAME)
     }
 }
 
 #[async_trait]
-impl TestGroup for Issue4891 {
+impl TestGroup for Crates4891 {
     async fn run(&self) -> TestGroupResult {
         let tests: Vec<Box<dyn Test>> = vec![
             Box::new(CloudfrontEncoded::new(&self.config)),
@@ -141,23 +141,23 @@ mod tests {
 
     #[test]
     fn trait_display() {
-        let issue_4891 = Issue4891::new(Environment::Staging);
+        let crates_4891 = Crates4891::new(Environment::Staging);
 
-        assert_eq!("rust-lang/crates.io#4891", issue_4891.to_string());
+        assert_eq!("rust-lang/crates.io#4891", crates_4891.to_string());
     }
 
     #[test]
     fn trait_send() {
-        assert_send::<Issue4891>();
+        assert_send::<Crates4891>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<Issue4891>();
+        assert_sync::<Crates4891>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<Issue4891>();
+        assert_unpin::<Crates4891>();
     }
 }
