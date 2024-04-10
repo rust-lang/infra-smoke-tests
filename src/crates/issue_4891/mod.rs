@@ -12,11 +12,17 @@ use self::cloudfront_encoded::CloudfrontEncoded;
 use self::cloudfront_space::CloudfrontSpace;
 use self::cloudfront_unencoded::CloudfrontUnencoded;
 use self::config::Config;
+use self::fastly_encoded::FastlyEncoded;
+use self::fastly_space::FastlySpace;
+use self::fastly_unencoded::FastlyUnencoded;
 
 mod cloudfront_encoded;
 mod cloudfront_space;
 mod cloudfront_unencoded;
 mod config;
+mod fastly_encoded;
+mod fastly_space;
+mod fastly_unencoded;
 
 /// The name of the test group
 const NAME: &str = "rust-lang/crates.io#4891";
@@ -55,6 +61,9 @@ impl TestGroup for Issue4891 {
             Box::new(CloudfrontEncoded::new(&self.config)),
             Box::new(CloudfrontUnencoded::new(&self.config)),
             Box::new(CloudfrontSpace::new(&self.config)),
+            Box::new(FastlyEncoded::new(&self.config)),
+            Box::new(FastlyUnencoded::new(&self.config)),
+            Box::new(FastlySpace::new(&self.config)),
         ];
 
         let mut results = Vec::new();
@@ -121,7 +130,7 @@ mod tests {
             .krate(krate.into())
             .version(version.into())
             .cloudfront_url(server.url())
-            .fastly_url(String::new())
+            .fastly_url(server.url())
             .build();
 
         (server, config)
