@@ -1,4 +1,4 @@
-//! Test Fastly with an un-encoded URL
+//! Test CloudFront with an un-encoded URL
 
 use async_trait::async_trait;
 use reqwest::StatusCode;
@@ -9,18 +9,18 @@ use super::config::Config;
 use super::request_url_and_expect_status;
 
 /// The name of the test
-const NAME: &str = "Fastly unencoded";
+const NAME: &str = "CloudFront unencoded";
 
-/// Test Fastly with an un-encoded URL
+/// Test CloudFront with an un-encoded URL
 ///
-/// This test request a URL with an un-encoded `+` character from Fastly. The test expects the CDN
-/// to return an HTTP 200 OK response.
-pub struct FastlyUnencoded<'a> {
+/// This test request a URL with an un-encoded `+` character from Cloudfront. The test expects the
+/// CDN to return an HTTP 200 OK response.
+pub struct CloudfrontUnencoded<'a> {
     /// Configuration for this test
     config: &'a Config,
 }
 
-impl<'a> FastlyUnencoded<'a> {
+impl<'a> CloudfrontUnencoded<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
@@ -28,11 +28,11 @@ impl<'a> FastlyUnencoded<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for FastlyUnencoded<'a> {
+impl<'a> Test for CloudfrontUnencoded<'a> {
     async fn run(&self) -> TestResult {
         let url = format!(
             "{}/crates/{}/{}-{}.crate",
-            self.config.fastly_url(),
+            self.config.cloudfront_url(),
             self.config.krate(),
             self.config.krate(),
             self.config.version()
@@ -44,7 +44,7 @@ impl<'a> Test for FastlyUnencoded<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::crates::issue_4891::tests::setup;
+    use crate::crates::crates_4891::tests::setup;
     use crate::test_utils::*;
 
     use super::*;
@@ -64,7 +64,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = FastlyUnencoded::new(&config).run().await;
+        let result = CloudfrontUnencoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -84,7 +84,7 @@ mod tests {
             .with_status(403)
             .create();
 
-        let result = FastlyUnencoded::new(&config).run().await;
+        let result = CloudfrontUnencoded::new(&config).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -94,16 +94,16 @@ mod tests {
 
     #[test]
     fn trait_send() {
-        assert_send::<FastlyUnencoded>();
+        assert_send::<CloudfrontUnencoded>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<FastlyUnencoded>();
+        assert_sync::<CloudfrontUnencoded>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<FastlyUnencoded>();
+        assert_unpin::<CloudfrontUnencoded>();
     }
 }
