@@ -9,9 +9,11 @@ use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
 use self::crates_4891::Crates4891;
 use self::crates_6164::Crates6164;
+use self::db_dump::DbDump;
 
 mod crates_4891;
 mod crates_6164;
+mod db_dump;
 mod utils;
 
 /// Smoke tests for crates.io
@@ -44,6 +46,7 @@ impl TestSuite for Crates {
         let groups: Vec<Box<dyn TestGroup>> = vec![
             Box::new(Crates4891::new(self.env)),
             Box::new(Crates6164::new(self.env)),
+            Box::new(DbDump::new(self.env)),
         ];
 
         let mut results = Vec::with_capacity(groups.len());
