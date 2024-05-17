@@ -11,6 +11,7 @@ use clap::Parser;
 
 use crate::cli::Cli;
 use crate::crates::Crates;
+use crate::rustup::Rustup;
 use crate::test::{TestSuite, TestSuiteResult};
 
 mod assertion;
@@ -20,6 +21,7 @@ mod test;
 
 // Test suites
 mod crates;
+mod rustup;
 
 #[cfg(test)]
 mod test_utils;
@@ -28,7 +30,10 @@ mod test_utils;
 async fn main() {
     let cli = Cli::parse();
 
-    let tests: Vec<Box<dyn TestSuite>> = vec![Box::new(Crates::new(cli.env()))];
+    let tests: Vec<Box<dyn TestSuite>> = vec![
+        Box::new(Crates::new(cli.env())),
+        Box::new(Rustup::new(cli.env())),
+    ];
 
     let mut results: Vec<TestSuiteResult> = Vec::with_capacity(tests.len());
     for test in &tests {
