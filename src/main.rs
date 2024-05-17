@@ -13,6 +13,7 @@ use crate::cli::Cli;
 use crate::crates::Crates;
 use crate::test::{TestSuite, TestSuiteResult};
 
+mod assertion;
 mod cli;
 mod environment;
 mod test;

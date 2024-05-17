@@ -2,8 +2,9 @@
 
 use async_trait::async_trait;
 use reqwest::redirect::Policy;
-use reqwest::{Client, Response};
+use reqwest::Client;
 
+use crate::assertion::{is_redirect, redirects_to};
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
@@ -23,20 +24,6 @@ impl<'a> Fastly<'a> {
     /// Create a new instance of the test
     pub fn new(config: &'a Config) -> Self {
         Self { config }
-    }
-
-    /// Check if a response is a redirect
-    fn is_redirect(&self, response: &Response) -> bool {
-        response.status().is_redirection()
-    }
-
-    /// Check if a response redirects to the given URL
-    fn redirects_to(&self, response: &Response, url: &str) -> bool {
-        response
-            .headers()
-            .get("Location")
-            .and_then(|header| header.to_str().ok())
-            .is_some_and(|location| location == url)
     }
 }
 
@@ -64,7 +51,7 @@ impl<'a> Test for Fastly<'a> {
 
         let expected_location = format!("{}/db-dump.tar.gz", self.config.cloudfront_url());
 
-        if self.is_redirect(&response) && self.redirects_to(&response, &expected_location) {
+        if is_redirect(&response) && redirects_to(&response, &expected_location) {
             TestResult::builder().name(NAME).success(true).build()
         } else {
             TestResult::builder()
