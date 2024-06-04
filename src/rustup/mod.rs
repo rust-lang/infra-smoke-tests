@@ -6,9 +6,11 @@ use async_trait::async_trait;
 
 use crate::environment::Environment;
 use crate::rustup::rustup_sh::RustupSh;
+use crate::rustup::win_rustup_rs::WinRustupRs;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
 mod rustup_sh;
+mod win_rustup_rs;
 
 /// Smoke tests for rustup
 ///
@@ -36,7 +38,10 @@ impl Display for Rustup {
 #[async_trait]
 impl TestSuite for Rustup {
     async fn run(&self) -> TestSuiteResult {
-        let groups: Vec<Box<dyn TestGroup>> = vec![Box::new(RustupSh::new(self.env))];
+        let groups: Vec<Box<dyn TestGroup>> = vec![
+            Box::new(RustupSh::new(self.env)),
+            Box::new(WinRustupRs::new(self.env)),
+        ];
 
         let mut results = Vec::with_capacity(groups.len());
         for group in &groups {
