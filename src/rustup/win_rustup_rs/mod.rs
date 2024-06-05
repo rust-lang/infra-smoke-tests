@@ -10,10 +10,12 @@ use reqwest::Client;
 use crate::environment::Environment;
 use crate::test::{Test, TestGroup, TestGroupResult, TestResult};
 
+pub use self::aarch64::Aarch64;
 pub use self::config::Config;
 pub use self::i686::I686;
 pub use self::x86_64::X86_64;
 
+mod aarch64;
 mod config;
 mod i686;
 mod x86_64;
@@ -50,6 +52,7 @@ impl Display for WinRustupRs {
 impl TestGroup for WinRustupRs {
     async fn run(&self) -> TestGroupResult {
         let tests: Vec<Box<dyn Test>> = vec![
+            Box::new(Aarch64::new(&self.config)),
             Box::new(I686::new(&self.config)),
             Box::new(X86_64::new(&self.config)),
         ];
