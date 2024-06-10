@@ -5,6 +5,7 @@ use reqwest::redirect::Policy;
 use reqwest::Client;
 
 use crate::assertion::{is_redirect, redirects_to};
+use crate::crates::db_dump::ARTIFACTS;
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
@@ -25,17 +26,15 @@ impl<'a> Fastly<'a> {
     pub fn new(config: &'a Config) -> Self {
         Self { config }
     }
-}
 
-#[async_trait]
-impl<'a> Test for Fastly<'a> {
-    async fn run(&self) -> TestResult {
+    /// Request the given path and expect a redirect to CloudFront
+    async fn request_and_expect_redirect(&self, path: &str) -> TestResult {
         let response = match Client::builder()
             // Don't follow the redirect, we want to check the redirect location
             .redirect(Policy::none())
             .build()
             .expect("failed to build reqwest client")
-            .head(format!("{}/db-dump.tar.gz", self.config.fastly_url()))
+            .head(format!("{}/{}", self.config.fastly_url(), path))
             .send()
             .await
         {
@@ -49,7 +48,7 @@ impl<'a> Test for Fastly<'a> {
             }
         };
 
-        let expected_location = format!("{}/db-dump.tar.gz", self.config.cloudfront_url());
+        let expected_location = format!("{}/{}", self.config.cloudfront_url(), path);
 
         if is_redirect(&response) && redirects_to(&response, &expected_location) {
             TestResult::builder().name(NAME).success(true).build()
@@ -64,6 +63,24 @@ impl<'a> Test for Fastly<'a> {
                 )))
                 .build()
         }
+    }
+}
+
+#[async_trait]
+impl<'a> Test for Fastly<'a> {
+    async fn run(&self) -> TestResult {
+        let mut results = Vec::with_capacity(ARTIFACTS.len());
+
+        for artifact in ARTIFACTS {
+            let result = self.request_and_expect_redirect(artifact).await;
+            results.push(result);
+        }
+
+        if let Some(failed) = results.into_iter().find(|result| !result.success()) {
+            return failed;
+        }
+
+        TestResult::builder().name(NAME).success(true).build()
     }
 }
 
@@ -82,16 +99,23 @@ mod tests {
             .fastly_url(server.url())
             .build();
 
-        let mock = server
+        let mock_tar = server
             .mock("HEAD", "/db-dump.tar.gz")
             .with_status(307)
             .with_header("Location", "https://cloudfront/db-dump.tar.gz")
             .create();
 
+        let mock_zip = server
+            .mock("HEAD", "/db-dump.zip")
+            .with_status(307)
+            .with_header("Location", "https://cloudfront/db-dump.zip")
+            .create();
+
         let result = Fastly::new(&config).run().await;
 
         // Assert that the mock was called
-        mock.assert();
+        mock_tar.assert();
+        mock_zip.assert();
 
         assert!(result.success());
     }
@@ -105,15 +129,21 @@ mod tests {
             .fastly_url(server.url())
             .build();
 
-        let mock = server
+        let mock_tar = server
             .mock("HEAD", "/db-dump.tar.gz")
+            .with_status(200)
+            .create();
+
+        let mock_zip = server
+            .mock("HEAD", "/db-dump.zip")
             .with_status(200)
             .create();
 
         let result = Fastly::new(&config).run().await;
 
         // Assert that the mock was called
-        mock.assert();
+        mock_tar.assert();
+        mock_zip.assert();
 
         assert!(!result.success());
     }

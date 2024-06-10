@@ -19,7 +19,10 @@ mod config;
 mod fastly;
 
 /// The name of the test group
-const NAME: &str = "db-dump.tar.gz";
+const NAME: &str = "Database dumps";
+
+/// The different database dumps that are available
+const ARTIFACTS: [&str; 2] = ["db-dump.tar.gz", "db-dump.zip"];
 
 /// Redirect requests for database dump to CloudFront
 ///
@@ -78,7 +81,7 @@ mod tests {
     fn trait_display() {
         let db_dump = DbDump::new(Environment::Staging);
 
-        assert_eq!("db-dump.tar.gz", db_dump.to_string());
+        assert_eq!("Database dumps", db_dump.to_string());
     }
 
     #[test]
