@@ -3,6 +3,7 @@
 use async_trait::async_trait;
 use reqwest::Client;
 
+use crate::crates::db_dump::ARTIFACTS;
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
@@ -23,15 +24,13 @@ impl<'a> CloudFront<'a> {
     pub fn new(config: &'a Config) -> Self {
         Self { config }
     }
-}
 
-#[async_trait]
-impl<'a> Test for CloudFront<'a> {
-    async fn run(&self) -> TestResult {
+    /// Request the given path and expect a successful response
+    async fn request_path_and_expect_success(&self, path: &str) -> TestResult {
         let response = match Client::builder()
             .build()
             .expect("failed to build reqwest client")
-            .head(format!("{}/db-dump.tar.gz", self.config.cloudfront_url()))
+            .head(format!("{}/{}", self.config.cloudfront_url(), path))
             .send()
             .await
         {
@@ -60,6 +59,24 @@ impl<'a> Test for CloudFront<'a> {
     }
 }
 
+#[async_trait]
+impl<'a> Test for CloudFront<'a> {
+    async fn run(&self) -> TestResult {
+        let mut results = Vec::with_capacity(ARTIFACTS.len());
+
+        for artifact in ARTIFACTS {
+            let result = self.request_path_and_expect_success(artifact).await;
+            results.push(result);
+        }
+
+        if let Some(failed) = results.into_iter().find(|result| !result.success()) {
+            return failed;
+        }
+
+        TestResult::builder().name(NAME).success(true).build()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use mockito::ServerGuard;
@@ -83,15 +100,21 @@ mod tests {
     async fn succeeds_with_http_200_response() {
         let (mut server, config) = setup().await;
 
-        let mock = server
+        let mock_tar = server
             .mock("HEAD", "/db-dump.tar.gz")
+            .with_status(200)
+            .create();
+
+        let mock_zip = server
+            .mock("HEAD", "/db-dump.zip")
             .with_status(200)
             .create();
 
         let result = CloudFront::new(&config).run().await;
 
         // Assert that the mock was called
-        mock.assert();
+        mock_tar.assert();
+        mock_zip.assert();
 
         assert!(result.success());
     }
@@ -100,15 +123,21 @@ mod tests {
     async fn fails_with_other_http_responses() {
         let (mut server, config) = setup().await;
 
-        let mock = server
+        let mock_tar = server
             .mock("HEAD", "/db-dump.tar.gz")
+            .with_status(500)
+            .create();
+
+        let mock_zip = server
+            .mock("HEAD", "/db-dump.zip")
             .with_status(500)
             .create();
 
         let result = CloudFront::new(&config).run().await;
 
         // Assert that the mock was called
-        mock.assert();
+        mock_tar.assert();
+        mock_zip.assert();
 
         assert!(!result.success());
     }
