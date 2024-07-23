@@ -2,13 +2,13 @@
 _default:
     just --list
 
-format ARGS:
+format *ARGS:
     cargo fmt --all -- {{ARGS}}
 
 lint:
     cargo clippy --all-targets --all-features -- -D warnings
 
-run ARGS:
+run *ARGS:
     cargo run -- {{ARGS}}
 
 test:
