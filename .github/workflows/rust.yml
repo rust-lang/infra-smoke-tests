@@ -43,7 +43,7 @@ jobs:
           done
 
   lint:
-    name: Lint code
+    name: Lint Rust code
     runs-on: ubuntu-latest
 
     needs: detect-changes
@@ -68,7 +68,7 @@ jobs:
         run: just lint
 
   style:
-    name: Check style
+    name: Check Rust style
     runs-on: ubuntu-latest
 
     needs: detect-changes

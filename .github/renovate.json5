@@ -2,6 +2,9 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:base"],
 
+  // Automatically merge pull requests that pass the required status checks
+  automerge: true,
+
   // Disable creating a GitHub issue that lists all available dependency updates
   dependencyDashboard: false,
 
