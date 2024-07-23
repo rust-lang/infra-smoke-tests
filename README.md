@@ -44,6 +44,13 @@ The smoke tests can be run with the following command:
 just run
 ```
 
+The tests can be run against either the `staging` or `production` environment by
+specifying it as an argument. By default, tests are run against `staging`.
+
+```shell
+just run --env production
+```
+
 The smoke tests are organized in the following way:
 
 - _Test suites_ execute tests for a specific service, for example `crates.io`
