@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 
-use crate::rustup::rustup_sh::request_rustup_and_expect_redirect;
+use crate::releases::rustup_sh::request_rustup_and_expect_redirect;
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
