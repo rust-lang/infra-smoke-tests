@@ -1,42 +1,42 @@
-//! Smoke tests for rustup
+//! Smoke tests for Rust releases
 
 use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
 
 use crate::environment::Environment;
-use crate::rustup::win_rustup_rs::WinRustupRs;
+use crate::releases::rustup_sh::RustupSh;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
-mod win_rustup_rs;
+mod rustup_sh;
 
-/// Smoke tests for rustup
+/// Smoke tests for Rust releases
 ///
-/// This test suite implements the smoke tests for rustup. The tests confirm that the domains of
-/// rustup redirect to the correct locations and that the cache invalidations in the CDNs work.
+/// This test suite implements the smoke tests for the Rust releases. The tests confirm that the CDN
+/// for releases is working as expected and that no regressions have been introduced.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
-pub struct Rustup {
+pub struct Releases {
     /// The environment to run the tests in
     env: Environment,
 }
 
-impl Rustup {
+impl Releases {
     /// Creates a new instance of the test suite
     pub fn new(env: Environment) -> Self {
         Self { env }
     }
 }
 
-impl Display for Rustup {
+impl Display for Releases {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "rustup")
+        write!(f, "Rust releases")
     }
 }
 
 #[async_trait]
-impl TestSuite for Rustup {
+impl TestSuite for Releases {
     async fn run(&self) -> TestSuiteResult {
-        let groups: Vec<Box<dyn TestGroup>> = vec![Box::new(WinRustupRs::new(self.env))];
+        let groups: Vec<Box<dyn TestGroup>> = vec![Box::new(RustupSh::new(self.env))];
 
         let mut results = Vec::with_capacity(groups.len());
         for group in &groups {
@@ -44,7 +44,7 @@ impl TestSuite for Rustup {
         }
 
         TestSuiteResult::builder()
-            .name("rustup")
+            .name("Rust releases")
             .results(results)
             .build()
     }
@@ -60,23 +60,23 @@ mod tests {
 
     #[test]
     fn trait_display() {
-        let rustup = Rustup::default();
+        let releases = Releases::default();
 
-        assert_eq!("rustup", rustup.to_string());
+        assert_eq!("Rust releases", releases.to_string());
     }
 
     #[test]
     fn trait_send() {
-        assert_send::<Rustup>();
+        assert_send::<Releases>();
     }
 
     #[test]
     fn trait_sync() {
-        assert_sync::<Rustup>();
+        assert_sync::<Releases>();
     }
 
     #[test]
     fn trait_unpin() {
-        assert_unpin::<Rustup>();
+        assert_unpin::<Releases>();
     }
 }

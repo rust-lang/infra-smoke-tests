@@ -11,6 +11,7 @@ use clap::Parser;
 
 use crate::cli::Cli;
 use crate::crates::Crates;
+use crate::releases::Releases;
 use crate::rustup::Rustup;
 use crate::test::{TestSuite, TestSuiteResult};
 
@@ -21,6 +22,7 @@ mod test;
 
 // Test suites
 mod crates;
+mod releases;
 mod rustup;
 
 #[cfg(test)]
@@ -32,6 +34,7 @@ async fn main() {
 
     let tests: Vec<Box<dyn TestSuite>> = vec![
         Box::new(Crates::new(cli.env())),
+        Box::new(Releases::new(cli.env())),
         Box::new(Rustup::new(cli.env())),
     ];
 
