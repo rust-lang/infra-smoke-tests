@@ -5,9 +5,11 @@ use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 
 use crate::environment::Environment;
+use crate::releases::list_files::ListFiles;
 use crate::releases::rustup_sh::RustupSh;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
+mod list_files;
 mod rustup_sh;
 
 /// Smoke tests for Rust releases
@@ -36,7 +38,10 @@ impl Display for Releases {
 #[async_trait]
 impl TestSuite for Releases {
     async fn run(&self) -> TestSuiteResult {
-        let groups: Vec<Box<dyn TestGroup>> = vec![Box::new(RustupSh::new(self.env))];
+        let groups: Vec<Box<dyn TestGroup>> = vec![
+            Box::new(ListFiles::new(self.env)),
+            Box::new(RustupSh::new(self.env)),
+        ];
 
         let mut results = Vec::with_capacity(groups.len());
         for group in &groups {
