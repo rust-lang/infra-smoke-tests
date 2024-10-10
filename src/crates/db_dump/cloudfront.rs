@@ -1,9 +1,9 @@
 //! Test that CloudFront serves the database dump
 
 use async_trait::async_trait;
-use reqwest::Client;
 
 use crate::crates::db_dump::ARTIFACTS;
+use crate::http_client::custom_http_client;
 use crate::test::{Test, TestResult};
 
 use super::config::Config;
@@ -27,7 +27,7 @@ impl<'a> CloudFront<'a> {
 
     /// Request the given path and expect a successful response
     async fn request_path_and_expect_success(&self, path: &str) -> TestResult {
-        let response = match Client::builder()
+        let response = match custom_http_client()
             .build()
             .expect("failed to build reqwest client")
             .head(format!("{}/{}", self.config.cloudfront_url(), path))
