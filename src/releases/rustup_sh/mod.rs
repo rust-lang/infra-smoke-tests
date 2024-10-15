@@ -6,10 +6,10 @@ use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
 use reqwest::redirect::Policy;
-use reqwest::Client;
 
 use crate::assertion::{is_redirect, redirects_to};
 use crate::environment::Environment;
+use crate::http_client::custom_http_client;
 use crate::test::{Test, TestGroup, TestGroupResult, TestResult};
 
 pub use self::cloudfront::CloudFront;
@@ -76,7 +76,7 @@ impl TestGroup for RustupSh {
 async fn request_rustup_and_expect_redirect(name: &'static str, base_url: &str) -> TestResult {
     let test_result = TestResult::builder().name(name).success(false);
 
-    let response = match Client::builder()
+    let response = match custom_http_client()
         // Don't follow the redirect, we want to check the redirect location
         .redirect(Policy::none())
         .build()

@@ -5,9 +5,9 @@
 use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
-use reqwest::Client;
 
 use crate::environment::Environment;
+use crate::http_client::custom_http_client;
 use crate::test::{Test, TestGroup, TestGroupResult, TestResult};
 
 pub use self::aarch64::Aarch64;
@@ -76,7 +76,7 @@ impl TestGroup for WinRustupRs {
 async fn request_installer_and_expect_attachment(name: &'static str, url: &str) -> TestResult {
     let test_result = TestResult::builder().name(name).success(false);
 
-    let response = match Client::builder()
+    let response = match custom_http_client()
         .build()
         .expect("failed to build reqwest client")
         .head(url)
