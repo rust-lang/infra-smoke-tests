@@ -1,5 +1,7 @@
 //! Test that Fastly redirects to CloudFront
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use reqwest::redirect::Policy;
 
@@ -16,14 +18,14 @@ const NAME: &str = "Fastly";
 /// Test that Fastly redirects to CloudFront
 ///
 /// The database dump cannot be served directly from Fastly, so it should redirect to CloudFront.
-pub struct Fastly<'a> {
+pub struct Fastly {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> Fastly<'a> {
+impl Fastly {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 
@@ -67,7 +69,7 @@ impl<'a> Fastly<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for Fastly<'a> {
+impl Test for Fastly {
     async fn run(&self) -> TestResult {
         let mut results = Vec::with_capacity(ARTIFACTS.len());
 
@@ -111,7 +113,7 @@ mod tests {
             .with_header("Location", "https://cloudfront/db-dump.zip")
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock_tar.assert();
@@ -139,7 +141,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock_tar.assert();

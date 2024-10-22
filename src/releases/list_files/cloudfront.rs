@@ -1,5 +1,7 @@
 //! Test that CloudFront lists the files in a release
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::releases::list_files::request_index_and_expect_loading_files;
@@ -14,20 +16,20 @@ const NAME: &str = "CloudFront";
 ///
 /// This module test that requests to the `index.html` in each release folder are rewritten to point
 /// to `list-files.html`.
-pub struct CloudFront<'a> {
+pub struct CloudFront {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> CloudFront<'a> {
+impl CloudFront {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for CloudFront<'a> {
+impl Test for CloudFront {
     async fn run(&self) -> TestResult {
         request_index_and_expect_loading_files(
             NAME,
@@ -64,7 +66,7 @@ mod tests {
             "#})
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -88,7 +90,7 @@ mod tests {
             .with_status(404)
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

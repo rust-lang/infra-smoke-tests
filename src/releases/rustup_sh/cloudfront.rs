@@ -1,5 +1,7 @@
 //! Test that CloudFront redirects `/rustup.sh` to `sh.rustup.rs`
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::releases::rustup_sh::request_rustup_and_expect_redirect;
@@ -15,20 +17,20 @@ const NAME: &str = "CloudFront";
 /// The test requests the deprecated path `/rustup.sh` from CloudFront and checks that it is
 /// redirected to `sh.rustup.rs`. The body of the response should contain instructions for the users
 /// who don't follow redirects.
-pub struct CloudFront<'a> {
+pub struct CloudFront {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> CloudFront<'a> {
+impl CloudFront {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for CloudFront<'a> {
+impl Test for CloudFront {
     async fn run(&self) -> TestResult {
         request_rustup_and_expect_redirect(NAME, self.config.cloudfront_url()).await
     }
@@ -63,7 +65,7 @@ mod tests {
             "#})
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -92,7 +94,7 @@ mod tests {
             "#})
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -115,7 +117,7 @@ mod tests {
             .with_header("Location", "https://sh.rustup.rs")
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

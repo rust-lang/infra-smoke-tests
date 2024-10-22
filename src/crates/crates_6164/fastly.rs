@@ -1,5 +1,7 @@
 //! Test the CORS headers on Fastly
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::crates::utils::crate_url;
@@ -15,20 +17,20 @@ const NAME: &str = "Fastly";
 ///
 /// This test requests a crate from Fastly and expects the response to have the correct CORS
 /// headers.
-pub struct Fastly<'a> {
+pub struct Fastly {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> Fastly<'a> {
+impl Fastly {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for Fastly<'a> {
+impl Test for Fastly {
     async fn run(&self) -> TestResult {
         let url = crate_url(
             self.config.fastly_url(),
@@ -63,7 +65,7 @@ mod tests {
             .with_header("Access-Control-Allow-Origin", "*")
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -83,7 +85,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

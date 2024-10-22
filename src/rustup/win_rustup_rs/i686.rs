@@ -1,5 +1,7 @@
 //! Test `win.rustup.rs/i686`
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::rustup::win_rustup_rs::request_installer_and_expect_attachment;
@@ -14,20 +16,20 @@ const NAME: &str = "i686";
 ///
 /// This test requests the installer from `win.rustup.rs/i686` and expects the response to contain
 /// the correct file as an attachment.
-pub struct I686<'a> {
+pub struct I686 {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> I686<'a> {
+impl I686 {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for I686<'a> {
+impl Test for I686 {
     async fn run(&self) -> TestResult {
         request_installer_and_expect_attachment(
             NAME,
@@ -59,7 +61,7 @@ mod tests {
             )
             .create();
 
-        let result = I686::new(&config).run().await;
+        let result = I686::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -83,7 +85,7 @@ mod tests {
             )
             .create();
 
-        let result = I686::new(&config).run().await;
+        let result = I686::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -106,7 +108,7 @@ mod tests {
             .with_header("Content-Type", "application/x-msdownload")
             .create();
 
-        let result = I686::new(&config).run().await;
+        let result = I686::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

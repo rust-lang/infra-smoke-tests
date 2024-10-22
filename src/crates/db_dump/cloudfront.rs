@@ -1,5 +1,7 @@
 //! Test that CloudFront serves the database dump
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::crates::db_dump::ARTIFACTS;
@@ -14,14 +16,14 @@ const NAME: &str = "CloudFront";
 /// Test that CloudFront serves the database dump
 ///
 /// The database dump cannot be served directly from Fastly, so it is served from CloudFront.
-pub struct CloudFront<'a> {
+pub struct CloudFront {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> CloudFront<'a> {
+impl CloudFront {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 
@@ -60,7 +62,7 @@ impl<'a> CloudFront<'a> {
 }
 
 #[async_trait]
-impl<'a> Test for CloudFront<'a> {
+impl Test for CloudFront {
     async fn run(&self) -> TestResult {
         let mut results = Vec::with_capacity(ARTIFACTS.len());
 
@@ -110,7 +112,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock_tar.assert();
@@ -133,7 +135,7 @@ mod tests {
             .with_status(500)
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock_tar.assert();

@@ -3,6 +3,7 @@
 use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
+use tokio::task::JoinSet;
 
 use crate::environment::Environment;
 use crate::rustup::win_rustup_rs::WinRustupRs;
@@ -38,10 +39,12 @@ impl TestSuite for Rustup {
     async fn run(&self) -> TestSuiteResult {
         let groups: Vec<Box<dyn TestGroup>> = vec![Box::new(WinRustupRs::new(self.env))];
 
-        let mut results = Vec::with_capacity(groups.len());
-        for group in &groups {
-            results.push(group.run().await);
+        let mut js = JoinSet::new();
+        for group in groups {
+            js.spawn(async move { group.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestSuiteResult::builder()
             .name("rustup")

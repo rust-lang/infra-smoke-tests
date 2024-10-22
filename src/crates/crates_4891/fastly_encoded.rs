@@ -1,5 +1,7 @@
 //! Test Fastly with an encoded URL
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
@@ -16,20 +18,20 @@ const NAME: &str = "Fastly encoded";
 ///
 /// This test request a URL with an encoded `+` character from Fastly. The test expects the CDN to
 /// return an HTTP 200 OK response.
-pub struct FastlyEncoded<'a> {
+pub struct FastlyEncoded {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> FastlyEncoded<'a> {
+impl FastlyEncoded {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for FastlyEncoded<'a> {
+impl Test for FastlyEncoded {
     async fn run(&self) -> TestResult {
         let url = crate_url(
             self.config.fastly_url(),
@@ -64,7 +66,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = FastlyEncoded::new(&config).run().await;
+        let result = FastlyEncoded::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -84,7 +86,7 @@ mod tests {
             .with_status(403)
             .create();
 
-        let result = FastlyEncoded::new(&config).run().await;
+        let result = FastlyEncoded::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

@@ -3,6 +3,7 @@
 use std::fmt::{Display, Formatter};
 
 use async_trait::async_trait;
+use tokio::task::JoinSet;
 
 use crate::environment::Environment;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
@@ -49,10 +50,12 @@ impl TestSuite for Crates {
             Box::new(DbDump::new(self.env)),
         ];
 
-        let mut results = Vec::with_capacity(groups.len());
-        for group in &groups {
-            results.push(group.run().await);
+        let mut js = JoinSet::new();
+        for group in groups {
+            js.spawn(async move { group.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestSuiteResult::builder()
             .name("crates.io")

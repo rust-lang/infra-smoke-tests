@@ -1,5 +1,7 @@
 //! Test that Fastly lists the files in a release
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::releases::list_files::request_index_and_expect_loading_files;
@@ -14,20 +16,20 @@ const NAME: &str = "Fastly";
 ///
 /// This module test that requests to the `index.html` in each release folder are rewritten to point
 /// to `list-files.html`.
-pub struct Fastly<'a> {
+pub struct Fastly {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> Fastly<'a> {
+impl Fastly {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for Fastly<'a> {
+impl Test for Fastly {
     async fn run(&self) -> TestResult {
         request_index_and_expect_loading_files(
             NAME,
@@ -63,7 +65,7 @@ mod tests {
             "#})
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -87,7 +89,7 @@ mod tests {
             .with_status(404)
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

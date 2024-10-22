@@ -1,5 +1,7 @@
 //! Test CloudFront with an encoded URL
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
@@ -16,20 +18,20 @@ const NAME: &str = "CloudFront encoded";
 ///
 /// This test request a URL with an encoded `+` character from Cloudfront. The test expects the CDN
 /// to return an HTTP 200 OK response.
-pub struct CloudfrontEncoded<'a> {
+pub struct CloudfrontEncoded {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> CloudfrontEncoded<'a> {
+impl CloudfrontEncoded {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for CloudfrontEncoded<'a> {
+impl Test for CloudfrontEncoded {
     async fn run(&self) -> TestResult {
         let url = crate_url(
             self.config.cloudfront_url(),
@@ -64,7 +66,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = CloudfrontEncoded::new(&config).run().await;
+        let result = CloudfrontEncoded::new(Arc::new(config.clone())).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -84,7 +86,7 @@ mod tests {
             .with_status(403)
             .create();
 
-        let result = CloudfrontEncoded::new(&config).run().await;
+        let result = CloudfrontEncoded::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

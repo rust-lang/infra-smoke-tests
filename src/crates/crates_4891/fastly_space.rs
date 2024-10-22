@@ -1,5 +1,7 @@
 //! Test Fastly with a URL including a space character
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use reqwest::StatusCode;
 
@@ -16,20 +18,20 @@ const NAME: &str = "Fastly with space";
 ///
 /// This test request a URL with a space character from Fastly. The test expects the CDN to return
 /// an HTTP 403 Forbidden response.
-pub struct FastlySpace<'a> {
+pub struct FastlySpace {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> FastlySpace<'a> {
+impl FastlySpace {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for FastlySpace<'a> {
+impl Test for FastlySpace {
     async fn run(&self) -> TestResult {
         let url = crate_url(
             self.config.fastly_url(),
@@ -66,7 +68,7 @@ mod tests {
             .with_status(403)
             .create();
 
-        let result = FastlySpace::new(&config).run().await;
+        let result = FastlySpace::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -88,7 +90,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = FastlySpace::new(&config).run().await;
+        let result = FastlySpace::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

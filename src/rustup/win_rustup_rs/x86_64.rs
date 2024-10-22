@@ -1,5 +1,7 @@
 //! Test `win.rustup.rs/x86_64`
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::rustup::win_rustup_rs::request_installer_and_expect_attachment;
@@ -14,20 +16,20 @@ const NAME: &str = "x86_64";
 ///
 /// This test requests the installer from `win.rustup.rs/x86_64` and expects the response to contain
 /// the correct file as an attachment.
-pub struct X86_64<'a> {
+pub struct X86_64 {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> X86_64<'a> {
+impl X86_64 {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for X86_64<'a> {
+impl Test for X86_64 {
     async fn run(&self) -> TestResult {
         request_installer_and_expect_attachment(
             NAME,
@@ -59,7 +61,7 @@ mod tests {
             )
             .create();
 
-        let result = X86_64::new(&config).run().await;
+        let result = X86_64::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -83,7 +85,7 @@ mod tests {
             )
             .create();
 
-        let result = X86_64::new(&config).run().await;
+        let result = X86_64::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -106,7 +108,7 @@ mod tests {
             .with_header("Content-Type", "application/x-msdownload")
             .create();
 
-        let result = X86_64::new(&config).run().await;
+        let result = X86_64::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

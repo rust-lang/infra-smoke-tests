@@ -10,7 +10,7 @@ use crate::test::TestSuiteResult;
 /// related to each other in some way. The results of the test groups are aggregated to produce the
 /// overall result of the test suite.
 #[async_trait]
-pub trait TestSuite {
+pub trait TestSuite: Send {
     /// Run the tests in this suite
     async fn run(&self) -> TestSuiteResult;
 }
