@@ -45,7 +45,10 @@ async fn main() {
         js.spawn(async move { test.run().await });
     }
 
-    let results = js.join_all().await;
+    let mut results = js.join_all().await;
+
+    // Sort the results so that the output is deterministic
+    results.sort();
 
     for result in &results {
         println!("{result}");
