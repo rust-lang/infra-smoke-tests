@@ -43,7 +43,10 @@ impl Display for TestSuiteResult {
 
         writeln!(f, "{}", display)?;
 
-        for result in &self.results {
+        let mut sorted_results = self.results.clone();
+        sorted_results.sort();
+
+        for result in sorted_results {
             let indented_result = indent_all_by(2, result.to_string());
             write!(f, "{}", indented_result)?;
         }
@@ -160,12 +163,12 @@ mod tests {
 
         let expected = indoc! {r#"
             ❌ suite
-              ✅ success
-                ✅ test 1
-                ✅ test 2
               ❌ failure
                 ✅ test 1
                 ❌ test 2 message
+              ✅ success
+                ✅ test 1
+                ✅ test 2
         "#};
 
         assert_eq!(expected, format!("{}", suite_result));

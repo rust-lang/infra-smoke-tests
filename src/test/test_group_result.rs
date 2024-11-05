@@ -42,7 +42,10 @@ impl Display for TestGroupResult {
 
         writeln!(f, "{}", display)?;
 
-        for result in &self.results {
+        let mut sorted_results = self.results.clone();
+        sorted_results.sort();
+
+        for result in sorted_results {
             writeln!(f, "  {}", result)?;
         }
 
