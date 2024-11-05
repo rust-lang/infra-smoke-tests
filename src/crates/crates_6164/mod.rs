@@ -4,9 +4,11 @@
 //! which reported an issue with missing CORS headers.
 
 use std::fmt::{Display, Formatter};
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use reqwest::header::{HeaderMap, HeaderValue};
+use tokio::task::JoinSet;
 
 use crate::environment::Environment;
 use crate::http_client::custom_http_client;
@@ -52,15 +54,18 @@ impl Display for Crates6164 {
 #[async_trait]
 impl TestGroup for Crates6164 {
     async fn run(&self) -> TestGroupResult {
+        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudFront::new(&self.config)),
-            Box::new(Fastly::new(&self.config)),
+            Box::new(CloudFront::new(config.clone())),
+            Box::new(Fastly::new(config.clone())),
         ];
 
-        let mut results = Vec::new();
+        let mut js = JoinSet::new();
         for test in tests {
-            results.push(test.run().await);
+            js.spawn(async move { test.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestGroupResult::builder()
             .name(NAME)

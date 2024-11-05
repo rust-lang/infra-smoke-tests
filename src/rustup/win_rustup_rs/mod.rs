@@ -3,8 +3,10 @@
 //! This module tests the three artifacts that can be downloaded from `win.rustup.rs`.
 
 use std::fmt::{Display, Formatter};
+use std::sync::Arc;
 
 use async_trait::async_trait;
+use tokio::task::JoinSet;
 
 use crate::environment::Environment;
 use crate::http_client::custom_http_client;
@@ -51,16 +53,19 @@ impl Display for WinRustupRs {
 #[async_trait]
 impl TestGroup for WinRustupRs {
     async fn run(&self) -> TestGroupResult {
+        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(Aarch64::new(&self.config)),
-            Box::new(I686::new(&self.config)),
-            Box::new(X86_64::new(&self.config)),
+            Box::new(Aarch64::new(config.clone())),
+            Box::new(I686::new(config.clone())),
+            Box::new(X86_64::new(config.clone())),
         ];
 
-        let mut results = Vec::new();
+        let mut js = JoinSet::new();
         for test in tests {
-            results.push(test.run().await);
+            js.spawn(async move { test.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestGroupResult::builder()
             .name(NAME)

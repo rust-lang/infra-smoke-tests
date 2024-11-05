@@ -8,12 +8,13 @@
 #![warn(clippy::missing_docs_in_private_items)]
 
 use clap::Parser;
+use tokio::task::JoinSet;
 
 use crate::cli::Cli;
 use crate::crates::Crates;
 use crate::releases::Releases;
 use crate::rustup::Rustup;
-use crate::test::{TestSuite, TestSuiteResult};
+use crate::test::TestSuite;
 
 mod assertion;
 mod cli;
@@ -39,10 +40,12 @@ async fn main() {
         Box::new(Rustup::new(cli.env())),
     ];
 
-    let mut results: Vec<TestSuiteResult> = Vec::with_capacity(tests.len());
-    for test in &tests {
-        results.push(test.run().await);
+    let mut js = JoinSet::new();
+    for test in tests {
+        js.spawn(async move { test.run().await });
     }
+
+    let results = js.join_all().await;
 
     for result in &results {
         println!("{result}");

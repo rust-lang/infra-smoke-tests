@@ -4,9 +4,11 @@
 //! which reported an issue with the `+` character in URLs.
 
 use std::fmt::{Display, Formatter};
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use reqwest::StatusCode;
+use tokio::task::JoinSet;
 
 use crate::environment::Environment;
 use crate::test::{Test, TestGroup, TestGroupResult, TestResult};
@@ -60,19 +62,22 @@ impl Display for Crates4891 {
 #[async_trait]
 impl TestGroup for Crates4891 {
     async fn run(&self) -> TestGroupResult {
+        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudfrontEncoded::new(&self.config)),
-            Box::new(CloudfrontUnencoded::new(&self.config)),
-            Box::new(CloudfrontSpace::new(&self.config)),
-            Box::new(FastlyEncoded::new(&self.config)),
-            Box::new(FastlyUnencoded::new(&self.config)),
-            Box::new(FastlySpace::new(&self.config)),
+            Box::new(CloudfrontEncoded::new(config.clone())),
+            Box::new(CloudfrontUnencoded::new(config.clone())),
+            Box::new(CloudfrontSpace::new(config.clone())),
+            Box::new(FastlyEncoded::new(config.clone())),
+            Box::new(FastlyUnencoded::new(config.clone())),
+            Box::new(FastlySpace::new(config.clone())),
         ];
 
-        let mut results = Vec::new();
+        let mut js = JoinSet::new();
         for test in tests {
-            results.push(test.run().await);
+            js.spawn(async move { test.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestGroupResult::builder()
             .name(NAME)

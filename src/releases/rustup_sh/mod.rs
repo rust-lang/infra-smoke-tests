@@ -3,9 +3,11 @@
 //! This module test that the deprecated `/rustup.sh` path is redirected to `sh.rustup.rs`.
 
 use std::fmt::{Display, Formatter};
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use reqwest::redirect::Policy;
+use tokio::task::JoinSet;
 
 use crate::assertion::{is_redirect, redirects_to};
 use crate::environment::Environment;
@@ -51,15 +53,18 @@ impl Display for RustupSh {
 #[async_trait]
 impl TestGroup for RustupSh {
     async fn run(&self) -> TestGroupResult {
+        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudFront::new(&self.config)),
-            Box::new(Fastly::new(&self.config)),
+            Box::new(CloudFront::new(config.clone())),
+            Box::new(Fastly::new(config.clone())),
         ];
 
-        let mut results = Vec::new();
+        let mut js = JoinSet::new();
         for test in tests {
-            results.push(test.run().await);
+            js.spawn(async move { test.run().await });
         }
+
+        let results = js.join_all().await;
 
         TestGroupResult::builder()
             .name(NAME)

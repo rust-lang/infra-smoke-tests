@@ -1,5 +1,7 @@
 //! Test the CORS headers on CloudFront
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::crates::utils::crate_url;
@@ -15,20 +17,20 @@ const NAME: &str = "CloudFront";
 ///
 /// This test requests a crate from CloudFront and expects the response to have the correct CORS
 /// headers.
-pub struct CloudFront<'a> {
+pub struct CloudFront {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> CloudFront<'a> {
+impl CloudFront {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for CloudFront<'a> {
+impl Test for CloudFront {
     async fn run(&self) -> TestResult {
         let url = crate_url(
             self.config.cloudfront_url(),
@@ -63,7 +65,7 @@ mod tests {
             .with_header("Access-Control-Allow-Origin", "*")
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -83,7 +85,7 @@ mod tests {
             .with_status(200)
             .create();
 
-        let result = CloudFront::new(&config).run().await;
+        let result = CloudFront::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();

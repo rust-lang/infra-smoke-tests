@@ -1,5 +1,7 @@
 //! Test that Fastly redirects `/rustup.sh` to `sh.rustup.rs`
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 
 use crate::releases::rustup_sh::request_rustup_and_expect_redirect;
@@ -15,20 +17,20 @@ const NAME: &str = "Fastly";
 /// The test requests the deprecated path `/rustup.sh` from Fastly and checks that it is redirected
 /// to `sh.rustup.rs`. The body of the response should contain instructions for the users who don't
 /// follow redirects.
-pub struct Fastly<'a> {
+pub struct Fastly {
     /// Configuration for this test
-    config: &'a Config,
+    config: Arc<Config>,
 }
 
-impl<'a> Fastly<'a> {
+impl Fastly {
     /// Create a new instance of the test
-    pub fn new(config: &'a Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl<'a> Test for Fastly<'a> {
+impl Test for Fastly {
     async fn run(&self) -> TestResult {
         request_rustup_and_expect_redirect(NAME, self.config.fastly_url()).await
     }
@@ -63,7 +65,7 @@ mod tests {
             "#})
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -92,7 +94,7 @@ mod tests {
             "#})
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
@@ -115,7 +117,7 @@ mod tests {
             .with_header("Location", "https://sh.rustup.rs")
             .create();
 
-        let result = Fastly::new(&config).run().await;
+        let result = Fastly::new(Arc::new(config)).run().await;
 
         // Assert that the mock was called
         mock.assert();
