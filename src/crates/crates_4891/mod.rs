@@ -41,14 +41,14 @@ const NAME: &str = "rust-lang/crates.io#4891 - Encoded + character";
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct Crates4891 {
     /// Configuration for the test group
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl Crates4891 {
     /// Create a new instance of the test group
     pub fn new(env: Environment) -> Self {
         Self {
-            config: Config::for_env(env),
+            config: Arc::new(Config::for_env(env)),
         }
     }
 }
@@ -62,14 +62,13 @@ impl Display for Crates4891 {
 #[async_trait]
 impl TestGroup for Crates4891 {
     async fn run(&self) -> TestGroupResult {
-        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudfrontEncoded::new(config.clone())),
-            Box::new(CloudfrontUnencoded::new(config.clone())),
-            Box::new(CloudfrontSpace::new(config.clone())),
-            Box::new(FastlyEncoded::new(config.clone())),
-            Box::new(FastlyUnencoded::new(config.clone())),
-            Box::new(FastlySpace::new(config.clone())),
+            Box::new(CloudfrontEncoded::new(self.config.clone())),
+            Box::new(CloudfrontUnencoded::new(self.config.clone())),
+            Box::new(CloudfrontSpace::new(self.config.clone())),
+            Box::new(FastlyEncoded::new(self.config.clone())),
+            Box::new(FastlyUnencoded::new(self.config.clone())),
+            Box::new(FastlySpace::new(self.config.clone())),
         ];
 
         let mut js = JoinSet::new();
