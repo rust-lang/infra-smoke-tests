@@ -33,14 +33,14 @@ const NAME: &str = "rust-lang/crates.io#6164 - CORS headers";
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct Crates6164 {
     /// Configuration for the test group
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl Crates6164 {
     /// Create a new instance of the test group
     pub fn new(env: Environment) -> Self {
         Self {
-            config: Config::for_env(env),
+            config: Arc::new(Config::for_env(env)),
         }
     }
 }
@@ -54,10 +54,9 @@ impl Display for Crates6164 {
 #[async_trait]
 impl TestGroup for Crates6164 {
     async fn run(&self) -> TestGroupResult {
-        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(CloudFront::new(config.clone())),
-            Box::new(Fastly::new(config.clone())),
+            Box::new(CloudFront::new(self.config.clone())),
+            Box::new(Fastly::new(self.config.clone())),
         ];
 
         let mut js = JoinSet::new();

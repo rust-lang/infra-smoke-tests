@@ -32,14 +32,14 @@ const NAME: &str = "win.rustup.rs";
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct WinRustupRs {
     /// Configuration for the test group
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl WinRustupRs {
     /// Create a new instance of the test group
     pub fn new(env: Environment) -> Self {
         Self {
-            config: Config::for_env(env),
+            config: Arc::new(Config::for_env(env)),
         }
     }
 }
@@ -53,11 +53,10 @@ impl Display for WinRustupRs {
 #[async_trait]
 impl TestGroup for WinRustupRs {
     async fn run(&self) -> TestGroupResult {
-        let config = Arc::new(self.config.clone());
         let tests: Vec<Box<dyn Test>> = vec![
-            Box::new(Aarch64::new(config.clone())),
-            Box::new(I686::new(config.clone())),
-            Box::new(X86_64::new(config.clone())),
+            Box::new(Aarch64::new(self.config.clone())),
+            Box::new(I686::new(self.config.clone())),
+            Box::new(X86_64::new(self.config.clone())),
         ];
 
         let mut js = JoinSet::new();
