@@ -102,11 +102,11 @@ async fn request_installer_and_expect_attachment(name: &'static str, url: &str) 
             .build();
     }
 
-    if !response
+    if response
         .headers()
         .get("Content-Type")
         .and_then(|header| header.to_str().ok())
-        .is_some_and(|header| header == "application/x-msdownload")
+        .is_none_or(|header| header != "application/x-msdownload")
     {
         return test_result
             .message(Some(
@@ -115,11 +115,11 @@ async fn request_installer_and_expect_attachment(name: &'static str, url: &str) 
             .build();
     }
 
-    if !response
+    if response
         .headers()
         .get("Content-Disposition")
         .and_then(|header| header.to_str().ok())
-        .is_some_and(|header| header.contains(r#"attachment; filename="rustup-init.exe""#))
+        .is_none_or(|header| !header.contains(r#"attachment; filename="rustup-init.exe""#))
     {
         return test_result
             .message(Some(
