@@ -59,7 +59,7 @@ jobs:
       - name: Cache build artifacts
         uses: swatinem/rust-cache@v2.7.7
         with:
-          prefix-key: cargo-1.84.0
+          prefix-key: cargo-1.84.1
 
       - name: Cache compilation artifacts
         uses: mozilla-actions/sccache-action@v0.0.7
@@ -101,7 +101,7 @@ jobs:
       - name: Cache build artifacts
         uses: swatinem/rust-cache@v2.7.7
         with:
-          prefix-key: cargo-1.84.0
+          prefix-key: cargo-1.84.1
 
       - name: Cache compilation artifacts
         uses: mozilla-actions/sccache-action@v0.0.7
