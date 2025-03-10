@@ -9,12 +9,14 @@ use std::sync::Arc;
 use async_trait::async_trait;
 
 use crate::environment::Environment;
-use crate::releases::doc_router::redirect_root::RedirectRoot;
 use crate::test::{Test, TestGroup, TestGroupResult};
 
 pub use self::config::Config;
+use self::redirect_minor_versions::RedirectMinorVersions;
+use self::redirect_root::RedirectRoot;
 
 mod config;
+mod redirect_minor_versions;
 mod redirect_root;
 
 /// The name of the test group
@@ -48,7 +50,10 @@ impl Display for DocRouter {
 #[async_trait]
 impl TestGroup for DocRouter {
     async fn run(&self) -> TestGroupResult {
-        let tests: Vec<Box<dyn Test>> = vec![Box::new(RedirectRoot::new(self.config.clone()))];
+        let tests: Vec<Box<dyn Test>> = vec![
+            Box::new(RedirectMinorVersions::new(self.config.clone())),
+            Box::new(RedirectRoot::new(self.config.clone())),
+        ];
 
         let mut results = Vec::new();
         for test in tests {
