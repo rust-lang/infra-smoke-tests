@@ -6,10 +6,12 @@ use async_trait::async_trait;
 use tokio::task::JoinSet;
 
 use crate::environment::Environment;
+use crate::releases::doc_router::DocRouter;
 use crate::releases::list_files::ListFiles;
 use crate::releases::rustup_sh::RustupSh;
 use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
+mod doc_router;
 mod list_files;
 mod rustup_sh;
 
@@ -40,6 +42,7 @@ impl Display for Releases {
 impl TestSuite for Releases {
     async fn run(&self) -> TestSuiteResult {
         let groups: Vec<Box<dyn TestGroup>> = vec![
+            Box::new(DocRouter::new(self.env)),
             Box::new(ListFiles::new(self.env)),
             Box::new(RustupSh::new(self.env)),
         ];
