@@ -1,6 +1,6 @@
-//! Redirect `/` or `index.html` to `https://rust-lang.org/learn`
+//! Redirect `/` or `index.html` to `/stable/`
 //!
-//! The doc router redirects the paths `/` and `index.html` to `https://rust-lang.org/learn`.
+//! The doc router redirects the paths `/` and `index.html` to `/stable/`.
 
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
@@ -16,9 +16,9 @@ use crate::test::{Test, TestResult};
 /// The name of the test
 const NAME: &str = "Redirect root path";
 
-/// Redirect `/` or `index.html` to `https://rust-lang.org/learn`
+/// Redirect `/` or `index.html` to `/stable/`
 ///
-/// The doc router redirects the paths `/` and `index.html` to `https://rust-lang.org/learn`.
+/// The doc router redirects the paths `/` and `index.html` to `/stable/`.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Default)]
 pub struct RedirectRoot {
     /// Configuration for the test group
@@ -58,7 +58,7 @@ impl Test for RedirectRoot {
             }
         };
 
-        let expected_location = "https://www.rust-lang.org/learn";
+        let expected_location = "/stable/";
 
         if !(is_redirect(&response) && redirects_to(&response, expected_location)) {
             let location = response
@@ -94,7 +94,7 @@ mod tests {
         let mock = server
             .mock("GET", "/")
             .with_status(302)
-            .with_header("Location", "https://www.rust-lang.org/learn")
+            .with_header("Location", "/stable/")
             .create();
 
         let result = RedirectRoot::new(Arc::new(config)).run().await;
