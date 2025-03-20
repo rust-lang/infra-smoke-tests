@@ -19,7 +19,7 @@ getset = "0.1.2"
 indent = "0.1.1"
 reqwest = { version = "0.12.0", default-features = false, features = ["rustls-tls"] }
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
-typed-builder = "0.20.0"
+typed-builder = "0.21.0"
 
 [dev-dependencies]
 indoc = "2.0.4"
