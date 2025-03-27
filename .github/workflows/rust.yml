@@ -32,7 +32,7 @@ jobs:
           prefix-key: cargo-1.85.1
 
       - name: Cache compilation artifacts
-        uses: mozilla-actions/sccache-action@v0.0.8
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Run Clippy
         run: just lint
@@ -68,7 +68,7 @@ jobs:
           prefix-key: cargo-1.85.1
 
       - name: Cache compilation artifacts
-        uses: mozilla-actions/sccache-action@v0.0.8
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Run tests
         run: just test
