@@ -44,7 +44,7 @@ impl ListFiles {
 
 impl Display for ListFiles {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 
@@ -83,7 +83,7 @@ async fn request_index_and_expect_loading_files(
 ) -> TestResult {
     let test_result = TestResult::builder().name(name).success(false);
 
-    let response = match reqwest::get(format!("{}/dist/{}/index.html", base_url, release)).await {
+    let response = match reqwest::get(format!("{base_url}/dist/{release}/index.html")).await {
         Ok(response) => response,
         Err(error) => {
             return test_result.message(Some(error.to_string())).build();

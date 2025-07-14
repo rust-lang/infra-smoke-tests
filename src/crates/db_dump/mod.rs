@@ -47,7 +47,7 @@ impl DbDump {
 
 impl Display for DbDump {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 

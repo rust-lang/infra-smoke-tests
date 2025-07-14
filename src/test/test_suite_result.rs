@@ -41,14 +41,14 @@ impl Display for TestSuiteResult {
         let emoji = if self.success() { "✅" } else { "❌" };
         let display = format!("{} {}", emoji, self.name());
 
-        writeln!(f, "{}", display)?;
+        writeln!(f, "{display}")?;
 
         let mut sorted_results = self.results.clone();
         sorted_results.sort();
 
         for result in sorted_results {
             let indented_result = indent_all_by(2, result.to_string());
-            write!(f, "{}", indented_result)?;
+            write!(f, "{indented_result}")?;
         }
 
         Ok(())

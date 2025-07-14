@@ -37,7 +37,7 @@ impl Display for TestResult {
             display.push_str(message);
         }
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
