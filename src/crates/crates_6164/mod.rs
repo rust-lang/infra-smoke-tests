@@ -47,7 +47,7 @@ impl Crates6164 {
 
 impl Display for Crates6164 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 

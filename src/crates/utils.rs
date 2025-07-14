@@ -17,7 +17,7 @@
 /// let url = crate_url(base_url, krate, version);
 /// ```
 pub fn crate_url(base_url: &str, krate: &str, version: &str) -> String {
-    format!("{}/crates/{}/{}-{}.crate", base_url, krate, krate, version)
+    format!("{base_url}/crates/{krate}/{krate}-{version}.crate")
 }
 
 #[cfg(test)]

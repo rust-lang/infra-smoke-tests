@@ -46,7 +46,7 @@ impl WinRustupRs {
 
 impl Display for WinRustupRs {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 

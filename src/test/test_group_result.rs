@@ -40,13 +40,13 @@ impl Display for TestGroupResult {
         let emoji = if self.success() { "✅" } else { "❌" };
         let display = format!("{} {}", emoji, self.name());
 
-        writeln!(f, "{}", display)?;
+        writeln!(f, "{display}")?;
 
         let mut sorted_results = self.results.clone();
         sorted_results.sort();
 
         for result in sorted_results {
-            writeln!(f, "  {}", result)?;
+            writeln!(f, "  {result}")?;
         }
 
         Ok(())

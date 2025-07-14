@@ -34,7 +34,7 @@ impl RedirectRoot {
 
 impl Display for RedirectRoot {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 
@@ -69,8 +69,7 @@ impl Test for RedirectRoot {
 
             return test_result
                 .message(Some(format!(
-                    "Expected a redirect to {}, got {}",
-                    expected_location, location
+                    "Expected a redirect to {expected_location}, got {location}"
                 )))
                 .build();
         }

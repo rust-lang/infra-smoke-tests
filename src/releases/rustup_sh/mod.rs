@@ -46,7 +46,7 @@ impl RustupSh {
 
 impl Display for RustupSh {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAME)
+        write!(f, "{NAME}")
     }
 }
 
@@ -85,7 +85,7 @@ async fn request_rustup_and_expect_redirect(name: &'static str, base_url: &str) 
         .redirect(Policy::none())
         .build()
         .expect("failed to build reqwest client")
-        .get(format!("{}/rustup.sh", base_url))
+        .get(format!("{base_url}/rustup.sh"))
         .send()
         .await
     {
