@@ -24,7 +24,7 @@ jobs:
         run: sudo snap install --edge --classic just
 
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cache build artifacts
         uses: swatinem/rust-cache@v2.8.1
@@ -46,7 +46,7 @@ jobs:
         run: sudo snap install --edge --classic just
 
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Run Rustfmt
         run: just format --check
@@ -60,7 +60,7 @@ jobs:
         run: sudo snap install --edge --classic just
 
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cache build artifacts
         uses: swatinem/rust-cache@v2.8.1
