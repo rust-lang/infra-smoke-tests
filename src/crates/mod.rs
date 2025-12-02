@@ -10,10 +10,12 @@ use crate::test::{TestGroup, TestSuite, TestSuiteResult};
 
 use self::crates_4891::Crates4891;
 use self::crates_6164::Crates6164;
+use self::crates_index::CratesIndex;
 use self::db_dump::DbDump;
 
 mod crates_4891;
 mod crates_6164;
+mod crates_index;
 mod db_dump;
 mod utils;
 
@@ -47,6 +49,7 @@ impl TestSuite for Crates {
         let groups: Vec<Box<dyn TestGroup>> = vec![
             Box::new(Crates4891::new(self.env)),
             Box::new(Crates6164::new(self.env)),
+            Box::new(CratesIndex::new(self.env)),
             Box::new(DbDump::new(self.env)),
         ];
 
