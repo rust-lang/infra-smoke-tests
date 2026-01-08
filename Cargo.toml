@@ -17,7 +17,7 @@ async-trait = "0.1.78"
 clap = { version = "4.5.3", features = ["derive"] }
 getset = "0.1.2"
 indent = "0.1.1"
-reqwest = { version = "0.12.0", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.13.0", default-features = false }
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
 typed-builder = "0.23.0"
 
