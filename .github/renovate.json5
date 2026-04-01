@@ -1,6 +1,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["config:base"],
+  extends: [
+    "config:recommended",
+    ":maintainLockFilesMonthly",
+    "helpers:pinGitHubActionDigestsToSemver",
+  ],
 
   // Automatically merge pull requests that pass the required status checks
   automerge: true,
@@ -15,7 +19,15 @@
 
   // Disable prefixing commits with the semantic commit type
   semanticCommits: "disabled",
-
+  packageRules: [
+    {
+      matchCategories: ["rust"],
+      matchJsonata: ["isBreaking != true"],
+      // Disable non-breaking change updates because they
+      // are updated periodically with lockfile maintainance.
+      enabled: false,
+    },
+  ]
   // Update the Rust version in the GitHub Actions workflow file
   customManagers: [
     {
@@ -37,4 +49,12 @@
       datasourceTemplate: "github-tags",
     },
   ],
+  // Receive any update that fixes security vulnerabilities.
+  // We need this because we disabled "patch" updates for Rust.
+  // Note: You need to enable "Dependabot alerts" in "Code security" GitHub
+  // Settings to receive security updates.
+  // See https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
+  vulnerabilityAlerts: {
+      enabled: true,
+  },
 }
