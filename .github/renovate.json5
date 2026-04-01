@@ -27,7 +27,7 @@
       // are updated periodically with lockfile maintainance.
       enabled: false,
     },
-  ]
+  ],
   // Update the Rust version in the GitHub Actions workflow file
   customManagers: [
     {
