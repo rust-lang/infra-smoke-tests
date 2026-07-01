@@ -18,8 +18,8 @@ pub struct Config {
 impl Config {
     /// Return the configuration for the given environment
     pub fn for_env(env: Environment) -> Self {
-        // Path to request a dummy crate from the index
-        const URL: &str = "/3/f/foo";
+        // Path to request a crate that exists in both staging and production.
+        const URL: &str = "/an/si/ansi_term";
         match env {
             Environment::Staging => Self {
                 index_url: format!("https://index.staging.crates.io{URL}"),
