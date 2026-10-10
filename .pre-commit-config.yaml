@@ -33,7 +33,7 @@ repos:
         language: node
         entry: prettier --write --ignore-unknown
         types: [text]
-        additional_dependencies: ["prettier@3.9.9"]
+        additional_dependencies: ["prettier@3.9.10"]
   - repo: https://github.com/doublify/pre-commit-rust
     rev: v1.0
     hooks:
