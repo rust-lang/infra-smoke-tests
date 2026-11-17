@@ -40,7 +40,7 @@ impl Test for FastlySpace {
         )
         .replace('+', " ");
 
-        request_url_and_expect_status(NAME, &url, StatusCode::FORBIDDEN).await
+        request_url_and_expect_status(NAME, &url, StatusCode::NOT_FOUND).await
     }
 }
 
@@ -55,7 +55,7 @@ mod tests {
     const VERSION: &str = "0.1.0 1";
 
     #[tokio::test]
-    async fn succeeds_with_http_403_response() {
+    async fn succeeds_with_http_404_response() {
         let (mut server, config) = setup(KRATE, VERSION).await;
 
         let encoded_version = VERSION.replace(' ', "%20");
@@ -65,7 +65,7 @@ mod tests {
                 "GET",
                 format!("/crates/{KRATE}/{KRATE}-{encoded_version}.crate").as_str(),
             )
-            .with_status(403)
+            .with_status(404)
             .create();
 
         let result = FastlySpace::new(Arc::new(config)).run().await;
